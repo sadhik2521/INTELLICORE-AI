@@ -36,7 +36,7 @@ const Explore = () => {
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
              <Sparkles size={48} color="var(--secondary)" className="pulsing-aura" style={{ borderRadius: '50%' }} />
           </div>
-          <h1 className="headline-xl" onClick={() => navigate('/')} style={{ fontSize: '28px', marginBottom: '8px', cursor: 'pointer', color: 'var(--primary)' }}>INTELLICORE AI</h1>
+          <h1 className="headline-xl" onClick={() => window.location.reload()} style={{ fontSize: '28px', marginBottom: '8px', cursor: 'pointer', color: 'var(--primary)' }}>INTELLICORE AI</h1>
           <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>
             Discover the next generation of conversational intelligence and productivity.
           </p>

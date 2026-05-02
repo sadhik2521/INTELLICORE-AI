@@ -74,7 +74,7 @@ const Chat = () => {
         backdropFilter: 'blur(10px)'
       }}>
         <Menu size={24} color="var(--outline)" />
-        <h2 className="headline-lg" onClick={() => navigate('/')} style={{ 
+        <h2 className="headline-lg" onClick={() => window.location.reload()} style={{ 
           background: 'linear-gradient(135deg, #fff 30%, var(--primary) 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',

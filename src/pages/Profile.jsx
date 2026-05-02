@@ -24,7 +24,7 @@ const Profile = () => {
         borderBottom: '1px solid var(--surface-variant)'
       }}>
         <Menu size={24} color="var(--outline)" />
-        <h2 className="headline-lg" onClick={() => navigate('/')} style={{ color: 'var(--primary)', margin: 0, fontSize: '20px', cursor: 'pointer' }}>INTELLICORE AI</h2>
+        <h2 className="headline-lg" onClick={() => window.location.reload()} style={{ color: 'var(--primary)', margin: 0, fontSize: '20px', cursor: 'pointer' }}>INTELLICORE AI</h2>
         <div style={{ width: '32px', height: '32px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--electric-blue)', backgroundColor: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {user?.avatar
             ? <img src={user.avatar} alt="Avatar" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
