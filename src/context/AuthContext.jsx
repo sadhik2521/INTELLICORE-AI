@@ -4,12 +4,14 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('intellicoreUser');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
     }
+    setLoading(false);
   }, []);
 
   const login = async (email, password) => {
@@ -79,7 +81,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, signup, oauthLogin, updateAvatar, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, signup, oauthLogin, updateAvatar, logout }}>
       {children}
     </AuthContext.Provider>
   );

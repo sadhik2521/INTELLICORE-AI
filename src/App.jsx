@@ -13,7 +13,8 @@ import { GOOGLE_CLIENT_ID } from './authConfig';
 import './App.css';
 
 const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  if (loading) return null; // Or a loading spinner
   if (!user) return <Navigate to="/login" replace />;
   return children;
 };
