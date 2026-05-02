@@ -90,8 +90,68 @@ const Chat = () => {
       {/* Chat Area */}
       <div style={{
         flex: 1, overflowY: 'auto', padding: '20px', paddingBottom: '140px',
-        display: 'flex', flexDirection: 'column', gap: '24px'
+        display: 'flex', flexDirection: 'column', gap: '24px',
+        position: 'relative'
       }}>
+        {messages.length === 0 && !isTyping && (
+          <div style={{
+            position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            width: '100%', pointerEvents: 'none'
+          }}>
+            <div style={{ position: 'relative', width: '120px', height: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '32px' }}>
+              {/* Animated rings */}
+              <div className="pulse-ring pulse-ring-1"></div>
+              <div className="pulse-ring pulse-ring-2"></div>
+              <div className="pulse-ring pulse-ring-3"></div>
+              {/* Core logo */}
+              <div style={{
+                background: 'var(--primary-gradient)', borderRadius: '50%', width: '72px', height: '72px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2,
+                boxShadow: '0 0 40px rgba(46, 91, 255, 0.5)'
+              }} className="core-pulse">
+                <Sparkles size={36} color="#fff" />
+              </div>
+            </div>
+            
+            <h3 className="headline-lg" style={{ 
+              background: 'linear-gradient(135deg, #ffffff 0%, #b8c3ff 100%)',
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+              fontSize: '26px', marginBottom: '12px', textAlign: 'center', fontWeight: 700
+            }}>
+              Hi, {user?.name?.split(' ')[0] || 'there'}!
+            </h3>
+            <p style={{ color: 'var(--on-surface-variant)', fontSize: '15px', textAlign: 'center', maxWidth: '280px', lineHeight: '1.5' }}>
+              Your intelligent companion is ready. How can I help you today?
+            </p>
+
+            <style>{`
+              .pulse-ring {
+                position: absolute; border-radius: 50%;
+                background: radial-gradient(circle, rgba(46,91,255,0.4) 0%, rgba(87,27,193,0) 70%);
+                opacity: 0; animation: ripple 3s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+              }
+              .pulse-ring-1 { width: 100%; height: 100%; animation-delay: 0s; }
+              .pulse-ring-2 { width: 100%; height: 100%; animation-delay: 1s; }
+              .pulse-ring-3 { width: 100%; height: 100%; animation-delay: 2s; }
+              
+              @keyframes ripple {
+                0% { transform: scale(0.6); opacity: 0.8; }
+                100% { transform: scale(2.8); opacity: 0; }
+              }
+
+              .core-pulse {
+                animation: coreFloat 4s ease-in-out infinite;
+              }
+
+              @keyframes coreFloat {
+                0% { transform: translateY(0) scale(1); }
+                50% { transform: translateY(-12px) scale(1.05); }
+                100% { transform: translateY(0) scale(1); }
+              }
+            `}</style>
+          </div>
+        )}
         {messages.map((msg, idx) => (
           msg.sender === 'user' ? (
             <div key={idx} style={{ alignSelf: 'flex-end', maxWidth: '85%' }}>
