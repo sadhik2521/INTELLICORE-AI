@@ -55,11 +55,41 @@ const Login = () => {
     }}>
       <AnimatedBackground />
 
-      <div style={{ textAlign: 'center', marginTop: '40px', marginBottom: '48px' }}>
-        <h1 className="headline-xl" onClick={() => navigate('/')} style={{ color: 'var(--primary)', marginBottom: '16px', cursor: 'pointer' }}>INTELLICORE AI</h1>
+      <div style={{ textAlign: 'center', marginTop: '16px', marginBottom: '24px' }}>
+        <h1 className="headline-xl" onClick={() => navigate('/')} style={{ color: 'var(--primary)', marginBottom: '8px', cursor: 'pointer' }}>INTELLICORE AI</h1>
         <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>
           {t('welcomeBack')}
         </p>
+      </div>
+
+      {/* Profile Preview (Visible when Google account is selected) */}
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '32px' }}>
+        <div style={{
+          width: '90px', height: '90px', borderRadius: '50%',
+          border: `2px dashed ${googleData?.picture ? 'var(--primary)' : 'var(--outline-variant)'}`,
+          display: 'flex', justifyContent: 'center', alignItems: 'center',
+          overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.05)',
+          boxShadow: googleData?.picture ? '0 0 20px rgba(46,91,255,0.2)' : 'none'
+        }}>
+          {googleData?.picture ? (
+            <img 
+              src={googleData.picture} 
+              alt="" 
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+          ) : (
+            <div style={{ textAlign: 'center', color: 'var(--outline-variant)' }}>
+              <div style={{ fontSize: '24px', fontWeight: 600 }}>?</div>
+            </div>
+          )}
+        </div>
+        {googleData && (
+          <div style={{ marginTop: '12px', textAlign: 'center' }}>
+            <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--primary)' }}>{googleData.name}</div>
+            <div style={{ fontSize: '11px', color: 'var(--outline)' }}>Linked via Google</div>
+          </div>
+        )}
       </div>
 
       <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -127,7 +157,14 @@ const Login = () => {
 
       {googleData ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', borderRadius: '8px', border: '1px solid var(--primary)', backgroundColor: 'rgba(46,91,255,0.05)' }}>
-          {googleData.picture && <img src={googleData.picture} alt="Google" style={{ width: '28px', height: '28px', borderRadius: '50%' }} />}
+          {googleData.picture && (
+            <img 
+              src={googleData.picture} 
+              alt="" 
+              style={{ width: '28px', height: '28px', borderRadius: '50%' }} 
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+          )}
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: '13px', color: 'var(--on-surface)' }}>{googleData.name}</div>
             <div style={{ fontSize: '11px', color: 'var(--on-surface-variant)' }}>{googleData.email}</div>

@@ -194,7 +194,14 @@ const SignUp = () => {
       {/* Google button: populates fields if not yet linked, otherwise auto-completes signup */}
       {googleLinked ? (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px', borderRadius: '8px', border: '1px solid var(--primary)', backgroundColor: 'rgba(46,91,255,0.05)' }}>
-          {avatar && <img src={avatar} alt="Google" style={{ width: '28px', height: '28px', borderRadius: '50%' }} />}
+          {avatar && (
+            <img 
+              src={avatar} 
+              alt="" 
+              style={{ width: '28px', height: '28px', borderRadius: '50%' }} 
+              onError={(e) => { e.target.style.display = 'none'; }}
+            />
+          )}
           <div style={{ flex: 1 }}>
             <div style={{ fontSize: '13px', color: 'var(--on-surface)' }}>{username}</div>
             <div style={{ fontSize: '11px', color: 'var(--on-surface-variant)' }}>{email}</div>
