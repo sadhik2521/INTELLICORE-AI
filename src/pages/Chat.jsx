@@ -4,6 +4,7 @@ import { Menu, Paperclip, Mic, Send, Copy, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import BottomNav from '../components/BottomNav';
+import AnimatedBackground from '../components/AnimatedBackground';
 
 const Chat = () => {
   const { user } = useAuth();
@@ -58,15 +59,27 @@ const Chat = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ 
+      display: 'flex', flexDirection: 'column', height: '100vh', 
+      position: 'relative', overflow: 'hidden',
+      background: 'rgba(5, 6, 8, 0.4)',
+      backdropFilter: 'blur(10px)'
+    }}>
+      <AnimatedBackground />
       {/* Header */}
       <div style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '16px 20px', borderBottom: '1px solid var(--surface-variant)',
-        backgroundColor: 'var(--surface-container-lowest)', zIndex: 5
+        padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)',
+        backgroundColor: 'rgba(5, 6, 8, 0.6)', zIndex: 10,
+        backdropFilter: 'blur(10px)'
       }}>
         <Menu size={24} color="var(--outline)" />
-        <h2 className="headline-lg" onClick={() => navigate('/')} style={{ color: 'var(--primary)', margin: 0, fontSize: '20px', cursor: 'pointer' }}>INTELLICORE AI</h2>
+        <h2 className="headline-lg" onClick={() => navigate('/')} style={{ 
+          background: 'linear-gradient(135deg, #fff 30%, var(--primary) 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          margin: 0, fontSize: '20px', cursor: 'pointer', fontWeight: 700 
+        }}>INTELLICORE AI</h2>
         <div style={{
           width: '32px', height: '32px', borderRadius: '50%',
           overflow: 'hidden', border: '1px solid var(--electric-blue)',
@@ -99,14 +112,18 @@ const Chat = () => {
           }}>
             <div style={{ 
               width: '120px', height: '120px', borderRadius: '50%', 
-              background: 'linear-gradient(135deg, rgba(46,91,255,0.1), rgba(87,27,193,0.1))',
+              background: 'linear-gradient(135deg, rgba(46,91,255,0.15), rgba(87,27,193,0.15))',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              marginBottom: '24px', position: 'relative'
+              marginBottom: '24px', position: 'relative',
+              boxShadow: '0 0 40px rgba(46,91,255,0.1)'
             }} className="pulsing-aura">
               <Sparkles size={60} color="var(--primary)" style={{ filter: 'drop-shadow(0 0 15px var(--primary))' }} />
             </div>
-            <h1 className="headline-lg" style={{ color: 'var(--primary)', marginBottom: '12px' }}>{t('howCanIHelp')}</h1>
-            <p className="body-md" style={{ color: 'var(--on-surface-variant)', maxWidth: '300px' }}>
+            <h1 className="headline-lg" style={{ 
+              color: '#fff', marginBottom: '12px', fontSize: '28px', fontWeight: 700,
+              textShadow: '0 2px 10px rgba(0,0,0,0.5)'
+            }}>{t('howCanIHelp')}</h1>
+            <p className="body-md" style={{ color: 'rgba(255,255,255,0.6)', maxWidth: '300px', lineHeight: '1.6' }}>
               I'm INTELLICORE, your advanced neural assistant. Ask me anything to get started.
             </p>
             
