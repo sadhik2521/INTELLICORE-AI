@@ -69,12 +69,21 @@ const Chat = () => {
         <h2 className="headline-lg" onClick={() => navigate('/')} style={{ color: 'var(--primary)', margin: 0, fontSize: '20px', cursor: 'pointer' }}>INTELLICORE AI</h2>
         <div style={{
           width: '32px', height: '32px', borderRadius: '50%',
-          overflow: 'hidden', border: '1px solid var(--electric-blue)'
+          overflow: 'hidden', border: '1px solid var(--electric-blue)',
+          display: 'flex', justifyContent: 'center', alignItems: 'center',
+          backgroundColor: 'rgba(255,255,255,0.1)'
         }}>
-          {/* Avatar placeholder */}
-          <div style={{ width: '100%', height: '100%', backgroundColor: '#333', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <span style={{color: '#fff', fontSize: '14px'}}>AC</span>
-          </div>
+          {user?.avatar ? (
+            <img 
+              src={user.avatar} 
+              alt="Avatar" 
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+            />
+          ) : (
+            <span style={{ color: 'var(--on-surface-variant)', fontSize: '12px', fontWeight: 600 }}>
+              {user?.name?.[0]?.toUpperCase() || 'U'}
+            </span>
+          )}
         </div>
       </div>
 
