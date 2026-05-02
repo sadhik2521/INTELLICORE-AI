@@ -43,18 +43,21 @@ const SignUp = () => {
     setUsername(name);
     setEmail(gEmail);
     setGoogleLinked(true);
-    // If Google provides a profile picture URL, convert it to base64 for storage
-    if (picture) {
-      fetch(picture)
-        .then(r => r.blob())
-        .then(blob => {
-          const reader = new FileReader();
-          reader.onloadend = () => setAvatar(reader.result);
-          reader.readAsDataURL(blob);
-        })
-        .catch(() => {}); // silently fail if pic can't be fetched
-    }
     setError('');
+    
+    // Set URL immediately for instant preview
+    if (picture) {
+      setAvatar(picture);
+      
+      // Attempt background conversion to base64 for persistence
+      fetch(picture, { mode: 'no-cors' })
+        .then(() => {
+          // Note: no-cors prevents reading the blob, so we might just stick with the URL
+          // If the server handles persistence, we'll use the URL. 
+          // For now, setting it directly ensures the UI looks correct.
+        })
+        .catch(() => {});
+    }
   };
 
   const handleSignUp = async (e) => {
@@ -114,11 +117,20 @@ const SignUp = () => {
             border: `2px dashed ${avatar ? 'var(--primary)' : 'var(--outline-variant)'}`,
             display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
             overflow: 'hidden', position: 'relative', backgroundColor: 'rgba(255,255,255,0.05)',
-            transition: 'border-color 0.2s'
+            transition: 'border-color 0.2s',
+            boxShadow: avatar ? '0 0 20px rgba(46,91,255,0.2)' : 'none'
           }}
         >
           {avatar ? (
-            <img src={avatar} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+            <img 
+              src={avatar} 
+              alt="" 
+              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} 
+              onError={(e) => {
+                e.target.style.display = 'none';
+                e.target.parentElement.classList.add('broken-img');
+              }}
+            />
           ) : (
             <>
               <Camera size={24} color="var(--outline-variant)" />

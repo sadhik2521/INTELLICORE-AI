@@ -147,7 +147,7 @@ const AnimatedBackground = () => {
         <div style={{
           position: 'absolute', inset: 0,
           backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")',
-          opacity: 0.05, pointerEvents: 'none', mixBlend-mode: 'overlay'
+          opacity: 0.05, pointerEvents: 'none', mixBlendMode: 'overlay'
         }} />
       </div>
     </>
