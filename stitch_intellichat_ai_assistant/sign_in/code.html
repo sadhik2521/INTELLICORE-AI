@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nexus AI - Sign In</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-dim": "#101415",
+                    "tertiary-container": "#656d84",
+                    "background": "#101415",
+                    "on-secondary-fixed-variant": "#5516be",
+                    "surface-bright": "#363a3b",
+                    "surface": "#101415",
+                    "on-error": "#690005",
+                    "outline-variant": "#434656",
+                    "on-tertiary": "#283044",
+                    "inverse-primary": "#124af0",
+                    "on-secondary-container": "#c4abff",
+                    "on-primary-fixed": "#001356",
+                    "on-primary": "#002388",
+                    "surface-container": "#1d2022",
+                    "secondary": "#d0bcff",
+                    "primary-container": "#2e5bff",
+                    "error": "#ffb4ab",
+                    "on-surface": "#e0e3e5",
+                    "primary": "#b8c3ff",
+                    "secondary-container": "#571bc1",
+                    "on-secondary-fixed": "#23005c",
+                    "secondary-fixed-dim": "#d0bcff",
+                    "error-container": "#93000a",
+                    "on-primary-container": "#efefff",
+                    "on-tertiary-fixed-variant": "#3f465c",
+                    "tertiary-fixed-dim": "#bec6e0",
+                    "tertiary-fixed": "#dae2fd",
+                    "tertiary": "#bec6e0",
+                    "on-error-container": "#ffdad6",
+                    "primary-fixed-dim": "#b8c3ff",
+                    "surface-container-highest": "#323537",
+                    "on-tertiary-fixed": "#131b2e",
+                    "on-surface-variant": "#c4c5d9",
+                    "surface-container-low": "#191c1e",
+                    "surface-container-high": "#272a2c",
+                    "on-tertiary-container": "#eef0ff",
+                    "on-secondary": "#3c0091",
+                    "outline": "#8e90a2",
+                    "secondary-fixed": "#e9ddff",
+                    "on-primary-fixed-variant": "#0035be",
+                    "surface-variant": "#323537",
+                    "inverse-on-surface": "#2d3133",
+                    "primary-fixed": "#dde1ff",
+                    "on-background": "#e0e3e5",
+                    "inverse-surface": "#e0e3e5",
+                    "surface-container-lowest": "#0b0f10",
+                    "surface-tint": "#b8c3ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xl": "32px",
+                    "gutter": "12px",
+                    "xs": "8px",
+                    "md": "16px",
+                    "margin": "20px",
+                    "sm": "12px",
+                    "lg": "24px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "body-md": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "label-md": ["Inter"],
+                    "headline-xl": ["Inter"]
+            },
+            "fontSize": {
+                    "body-md": ["16px", {"lineHeight": "24px", "letterSpacing": "0em", "fontWeight": "400"}],
+                    "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "letterSpacing": "0em", "fontWeight": "400"}],
+                    "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "headline-xl": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #101415;
+            color: #e0e3e5;
+        }
+        .glass-panel {
+            background: rgba(29, 32, 34, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .ai-aura {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(46, 91, 255, 0.15) 0%, rgba(87, 27, 193, 0.05) 50%, transparent 70%);
+            filter: blur(64px);
+            z-index: -1;
+        }
+        .sleek-input {
+            background: transparent;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            border-bottom: 2px solid #434656;
+            transition: all 0.3s ease-out;
+        }
+        .sleek-input:focus {
+            outline: none;
+            border-bottom-color: #2e5bff;
+            box-shadow: 0 4px 12px -6px rgba(46, 91, 255, 0.4);
+        }
+        .primary-gradient {
+            background: linear-gradient(135deg, #2e5bff 0%, #571bc1 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="flex items-center justify-center min-h-screen p-margin font-body-md selection:bg-primary-container selection:text-white">
+<div class="ai-aura"></div>
+<main class="w-full max-w-[440px] z-10">
+<div class="glass-panel rounded-xl p-lg md:p-xl shadow-2xl">
+<!-- Brand Identity -->
+<div class="text-center mb-xl">
+<h1 class="font-headline-xl text-headline-xl bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-violet-400 tracking-tight">Nexus AI</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Welcome back to the future of intelligence.</p>
+</div>
+<!-- Login Form -->
+<form class="space-y-lg">
+<div class="space-y-base">
+<label class="font-label-md text-label-md text-outline uppercase tracking-widest ml-1">Email Address</label>
+<div class="relative group">
+<input class="sleek-input w-full py-md px-1 font-body-md text-body-md text-on-surface placeholder:text-outline-variant" placeholder="alex.chen@nexus.ai" type="email"/>
+</div>
+</div>
+<div class="space-y-base">
+<div class="flex justify-between items-center">
+<label class="font-label-md text-label-md text-outline uppercase tracking-widest ml-1">Password</label>
+<a class="font-label-md text-label-md text-primary-container hover:text-primary transition-colors" href="#">Forgot?</a>
+</div>
+<div class="relative group">
+<input class="sleek-input w-full py-md px-1 font-body-md text-body-md text-on-surface placeholder:text-outline-variant" placeholder="••••••••••••" type="password"/>
+</div>
+</div>
+<button class="w-full primary-gradient h-14 rounded-xl font-label-md text-headline-lg text-white shadow-lg active:scale-95 transition-transform duration-300 flex items-center justify-center gap-md" type="submit">
+                    Sign In
+                    <span class="material-symbols-outlined text-xl">arrow_forward</span>
+</button>
+</form>
+<!-- Divider -->
+<div class="flex items-center gap-md my-xl">
+<div class="h-px bg-white/10 flex-grow"></div>
+<span class="font-label-md text-label-md text-outline uppercase">OR CONTINUE WITH</span>
+<div class="h-px bg-white/10 flex-grow"></div>
+</div>
+<!-- Social Logins -->
+<div class="grid grid-cols-2 gap-md">
+<button class="flex items-center justify-center gap-sm h-12 glass-panel rounded-lg font-body-sm text-body-sm hover:bg-white/5 transition-all duration-300">
+<img alt="Google" class="w-5 h-5 opacity-80" data-alt="A clean, high-resolution Google logo centered on a transparent background, representing a seamless and professional third-party authentication option. The vibrant primary colors of the logo are slightly muted to harmonize with the overall dark, sophisticated UI aesthetic of the application." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeOx_DPh63G5ZY1LEKKN8NO6eqCl9F6gX6rj_TqyIOX83AxzbXX_L9N_XfsS_vWt4AjyLbxC6vQbIgP7ZDj8wJZjSLCj-oTQ_AIYxEoiQzzfl4BwCyxVusSctzlhu07uSsRb07a6xlVgVsC81TR45EndfWrN9KLdx2kv_gY9k0yskNiEFSDnJhWweXE0elMNnM4uJVrxdVc5g3He0HQFsR1w6d8ejSnFl0Wd9hr_6hZtBNtKwCKoCW6T7jtlqhiBki5yiqIgUEXpo"/>
+                    Google
+                </button>
+<button class="flex items-center justify-center gap-sm h-12 glass-panel rounded-lg font-body-sm text-body-sm hover:bg-white/5 transition-all duration-300">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">ios</span>
+                    Apple
+                </button>
+</div>
+<!-- Secondary Action -->
+<div class="text-center mt-xl">
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+                    Don't have an account? 
+                    <a class="text-primary-container font-label-md hover:underline decoration-primary-container/30 underline-offset-4" href="#">Sign Up</a>
+</p>
+</div>
+</div>
+<!-- Visual Element / Decoration -->
+<div class="mt-xl flex justify-center gap-xl opacity-20">
+<div class="relative w-full h-[200px] overflow-hidden rounded-xl border border-white/5 grayscale hover:grayscale-0 transition-all duration-700">
+<img alt="Abstract Neural Network" class="w-full h-full object-cover" data-alt="A vast and intricate digital neural network visualized as glowing interconnected nodes and shimmering fiber-optic lines floating in a deep indigo void. The lighting features soft blue and violet neon glows that pulsate gently, creating a sense of intelligent activity and futuristic depth. The composition is minimalist and cinematic, echoing the clean and high-tech aesthetic of a sophisticated AI platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-d9utQw98xK69LA41ovzUPw8aRZW5Npha-ajed5Yd4o5he1B-EDjJzXYak_kGFwFYSW_5pIpIBCiW9wB3qK05pFPyuGj_EW7vATsh52W8W3w4YsKnKIRVT6uoYaYYCeq31SJ6eYiBIfxsMyXBtDhj29hv3QjF8VdM1rmJugXtWAHa22lfxik_ydDY3pXt9DulJD0ent7uWlKNE6VeI2ifVFdtgeXKyTjD8veSI05rLBnayv82bPJI79ExJ6HcJKFnGIvfu-8iPZ8"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-dim to-transparent"></div>
+</div>
+</div>
+</main>
+<!-- Footer Meta -->
+<footer class="fixed bottom-lg w-full text-center px-margin opacity-40 pointer-events-none">
+<p class="font-label-md text-label-md tracking-[0.2em] uppercase">Nexus Integrated Systems © 2024</p>
+</footer>
+</body></html>
