@@ -102,37 +102,71 @@ const Chat = () => {
 
       {/* Chat Area */}
       <div style={{
-        flex: 1, overflowY: 'auto', padding: '20px', paddingBottom: '140px',
+        flex: 1, overflowY: 'auto', padding: '20px', paddingBottom: messages.length === 0 ? '0' : '140px',
         display: 'flex', flexDirection: 'column', gap: '24px', position: 'relative'
       }}>
         {messages.length === 0 ? (
           <div style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            height: '100%', opacity: 0.8, textAlign: 'center', padding: '0 40px'
+            height: '100%', textAlign: 'center', padding: '0 24px'
           }}>
             <div style={{ 
-              width: '120px', height: '120px', borderRadius: '50%', 
+              width: '100px', height: '100px', borderRadius: '50%', 
               background: 'linear-gradient(135deg, rgba(46,91,255,0.15), rgba(87,27,193,0.15))',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              marginBottom: '24px', position: 'relative',
+              marginBottom: '20px', position: 'relative',
               boxShadow: '0 0 40px rgba(46,91,255,0.1)'
             }} className="pulsing-aura">
-              <Sparkles size={60} color="var(--primary)" style={{ filter: 'drop-shadow(0 0 15px var(--primary))' }} />
+              <Sparkles size={50} color="var(--primary)" style={{ filter: 'drop-shadow(0 0 15px var(--primary))' }} />
             </div>
             <h1 className="headline-lg" style={{ 
-              color: '#fff', marginBottom: '12px', fontSize: '28px', fontWeight: 700,
+              color: '#fff', marginBottom: '12px', fontSize: '26px', fontWeight: 700,
               textShadow: '0 2px 10px rgba(0,0,0,0.5)'
             }}>{t('howCanIHelp')}</h1>
-            <p className="body-md" style={{ color: 'rgba(255,255,255,0.6)', maxWidth: '300px', lineHeight: '1.6' }}>
+            <p className="body-md" style={{ color: 'rgba(255,255,255,0.6)', maxWidth: '300px', lineHeight: '1.6', marginBottom: '32px' }}>
               I'm INTELLICORE, your advanced neural assistant. Ask me anything to get started.
             </p>
+
+            {/* Centered Input Bar */}
+            <div style={{ width: '100%', maxWidth: '400px', marginBottom: '32px' }}>
+              <div className="glass-card" style={{
+                display: 'flex', alignItems: 'center', padding: '8px 16px', gap: '12px',
+                borderRadius: '24px', backgroundColor: 'rgba(39, 42, 44, 0.8)', border: '1px solid rgba(255,255,255,0.1)',
+                boxShadow: '0 4px 30px rgba(0,0,0,0.3)'
+              }}>
+                <Paperclip size={20} color="var(--outline)" style={{ cursor: 'pointer' }} />
+                <input 
+                  type="text" 
+                  placeholder={t('askNexus')} 
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onKeyPress={e => e.key === 'Enter' && handleSend()}
+                  style={{
+                    flex: 1, background: 'transparent', border: 'none', color: '#fff',
+                    fontSize: '16px', outline: 'none', padding: '12px 0',
+                    fontFamily: 'Inter'
+                  }}
+                />
+                <button 
+                  onClick={handleSend}
+                  style={{
+                    background: 'linear-gradient(135deg, var(--electric-blue), var(--violet))',
+                    border: 'none', borderRadius: '12px', width: '40px', height: '40px',
+                    display: 'flex', justifyContent: 'center', alignItems: 'center',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Send size={18} color="#fff" />
+                </button>
+              </div>
+            </div>
             
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', marginTop: '32px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
               {['Write code', 'Explain AI', 'Brainstorm ideas'].map((item) => (
                 <div key={item} onClick={() => setInput(item)} style={{
                   padding: '8px 16px', borderRadius: '20px', border: '1px solid var(--outline-variant)',
-                  fontSize: '13px', color: 'var(--on-surface-variant)', cursor: 'pointer',
-                  backgroundColor: 'rgba(255,255,255,0.02)', transition: 'all 0.2s'
+                  fontSize: '13px', color: 'rgba(255,255,255,0.7)', cursor: 'pointer',
+                  backgroundColor: 'rgba(255,255,255,0.05)', transition: 'all 0.2s'
                 }}>
                   {item}
                 </div>
@@ -213,41 +247,43 @@ const Chat = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      <div style={{
-        position: 'absolute', bottom: '80px', left: '20px', right: '20px', zIndex: 15
-      }}>
-        <div className="glass-card" style={{
-          display: 'flex', alignItems: 'center', padding: '8px 16px', gap: '12px',
-          borderRadius: '24px', backgroundColor: 'rgba(39, 42, 44, 0.8)', border: '1px solid rgba(255,255,255,0.05)'
+      {/* Bottom Input Area (Only visible when messages exist) */}
+      {messages.length > 0 && (
+        <div style={{
+          position: 'absolute', bottom: '80px', left: '20px', right: '20px', zIndex: 15
         }}>
-          <Paperclip size={20} color="var(--outline)" style={{ cursor: 'pointer' }} />
-          <input 
-            type="text" 
-            placeholder={t('askNexus')} 
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyPress={e => e.key === 'Enter' && handleSend()}
-            style={{
-              flex: 1, background: 'transparent', border: 'none', color: '#fff',
-              fontSize: '16px', outline: 'none', padding: '8px 0',
-              fontFamily: 'Inter'
-            }}
-          />
-          <Mic size={20} color="var(--outline)" style={{ cursor: 'pointer' }} />
-          <button 
-            onClick={handleSend}
-            style={{
-              background: 'linear-gradient(135deg, var(--electric-blue), var(--violet))',
-              border: 'none', borderRadius: '12px', width: '40px', height: '40px',
-              display: 'flex', justifyContent: 'center', alignItems: 'center',
-              cursor: 'pointer', marginLeft: '4px'
-            }}
-          >
-            <Send size={18} color="#fff" />
-          </button>
+          <div className="glass-card" style={{
+            display: 'flex', alignItems: 'center', padding: '8px 16px', gap: '12px',
+            borderRadius: '24px', backgroundColor: 'rgba(39, 42, 44, 0.8)', border: '1px solid rgba(255,255,255,0.05)'
+          }}>
+            <Paperclip size={20} color="var(--outline)" style={{ cursor: 'pointer' }} />
+            <input 
+              type="text" 
+              placeholder={t('askNexus')} 
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyPress={e => e.key === 'Enter' && handleSend()}
+              style={{
+                flex: 1, background: 'transparent', border: 'none', color: '#fff',
+                fontSize: '16px', outline: 'none', padding: '8px 0',
+                fontFamily: 'Inter'
+              }}
+            />
+            <Mic size={20} color="var(--outline)" style={{ cursor: 'pointer' }} />
+            <button 
+              onClick={handleSend}
+              style={{
+                background: 'linear-gradient(135deg, var(--electric-blue), var(--violet))',
+                border: 'none', borderRadius: '12px', width: '40px', height: '40px',
+                display: 'flex', justifyContent: 'center', alignItems: 'center',
+                cursor: 'pointer', marginLeft: '4px'
+              }}
+            >
+              <Send size={18} color="#fff" />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Bottom Nav */}
       <BottomNav />
