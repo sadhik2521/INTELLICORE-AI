@@ -1,139 +1,157 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-const AnimatedBackground = () => (
-  <>
-    <style>{`
-      .anim-bg {
-        position: fixed;
-        inset: 0;
-        z-index: -1;
-        overflow: hidden;
-        pointer-events: none;
-        background: #080a0b;
-      }
+const AnimatedBackground = () => {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-      /* Aurora wave layers */
-      .aurora {
-        position: absolute;
-        width: 200%;
-        height: 200%;
-        top: -50%;
-        left: -50%;
-        opacity: 0.18;
-        animation: auroraRotate 20s linear infinite;
-        background: conic-gradient(
-          from 0deg at 50% 50%,
-          #2e5bff 0deg,
-          #571bc1 60deg,
-          #080a0b 120deg,
-          #2e5bff 180deg,
-          #571bc1 240deg,
-          #080a0b 300deg,
-          #2e5bff 360deg
-        );
-        filter: blur(60px);
-      }
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePos({
+        x: (e.clientX / window.innerWidth - 0.5) * 20,
+        y: (e.clientY / window.innerHeight - 0.5) * 20,
+      });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
-      .aurora-2 {
-        position: absolute;
-        width: 160%;
-        height: 160%;
-        top: -30%;
-        left: -30%;
-        opacity: 0.12;
-        animation: auroraRotate 30s linear infinite reverse;
-        background: conic-gradient(
-          from 90deg at 40% 60%,
-          #571bc1 0deg,
-          #2e5bff 90deg,
-          #080a0b 160deg,
-          #571bc1 240deg,
-          #080a0b 320deg,
-          #2e5bff 360deg
-        );
-        filter: blur(80px);
-      }
+  return (
+    <>
+      <style>{`
+        .anim-bg-container {
+          position: fixed;
+          inset: 0;
+          z-index: -1;
+          overflow: hidden;
+          background: #050608;
+          perspective: 1000px;
+        }
 
-      @keyframes auroraRotate {
-        from { transform: rotate(0deg); }
-        to   { transform: rotate(360deg); }
-      }
+        /* Deep Nebula Clouds */
+        .nebula {
+          position: absolute;
+          width: 150%;
+          height: 150%;
+          top: -25%;
+          left: -25%;
+          background: 
+            radial-gradient(circle at 20% 30%, rgba(46, 91, 255, 0.15) 0%, transparent 40%),
+            radial-gradient(circle at 80% 70%, rgba(87, 27, 193, 0.15) 0%, transparent 40%),
+            radial-gradient(circle at 50% 50%, rgba(20, 20, 30, 1) 0%, transparent 100%);
+          filter: blur(100px);
+          animation: nebulaShift 30s ease-in-out infinite alternate;
+        }
 
-      /* Floating particles */
-      .particle {
-        position: absolute;
-        border-radius: 50%;
-        animation: floatUp linear infinite;
-        opacity: 0;
-      }
+        @keyframes nebulaShift {
+          0% { transform: translate(0, 0) scale(1); }
+          100% { transform: translate(-5%, -5%) scale(1.1); }
+        }
 
-      @keyframes floatUp {
-        0%   { transform: translateY(110vh) scale(0); opacity: 0; }
-        10%  { opacity: 0.6; }
-        90%  { opacity: 0.4; }
-        100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
-      }
+        /* Animated Digital Grid */
+        .grid-plane {
+          position: absolute;
+          width: 200%;
+          height: 200%;
+          bottom: -50%;
+          left: -50%;
+          background-image: 
+            linear-gradient(rgba(46, 91, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(46, 91, 255, 0.05) 1px, transparent 1px);
+          background-size: 50px 50px;
+          transform: rotateX(60deg);
+          animation: gridMove 20s linear infinite;
+        }
 
-      /* Scanline overlay */
-      .scanlines {
-        position: absolute;
-        inset: 0;
-        background: repeating-linear-gradient(
-          to bottom,
-          transparent 0px,
-          transparent 3px,
-          rgba(0,0,0,0.08) 3px,
-          rgba(0,0,0,0.08) 4px
-        );
-        pointer-events: none;
-      }
+        @keyframes gridMove {
+          0% { background-position: 0 0; }
+          100% { background-position: 0 500px; }
+        }
 
-      /* Subtle vignette */
-      .vignette {
-        position: absolute;
-        inset: 0;
-        background: radial-gradient(ellipse at center,
-          transparent 40%,
-          rgba(0,0,0,0.6) 100%
-        );
-        pointer-events: none;
-      }
-    `}</style>
+        /* Energy Orbs */
+        .orb {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(60px);
+          opacity: 0.4;
+          mix-blend-mode: screen;
+        }
 
-    <div className="anim-bg">
-      {/* Aurora layers */}
-      <div className="aurora" />
-      <div className="aurora-2" />
+        .orb-blue {
+          width: 400px; height: 400px;
+          background: radial-gradient(circle, #2e5bff 0%, transparent 70%);
+          top: 10%; left: 10%;
+          animation: floatOrb1 15s ease-in-out infinite alternate;
+        }
 
-      {/* Floating particles */}
-      {[...Array(18)].map((_, i) => {
-        const size = Math.random() * 4 + 2;
-        const left = Math.random() * 100;
-        const duration = Math.random() * 12 + 8;
-        const delay = Math.random() * 15;
-        const color = i % 3 === 0 ? '#2e5bff' : i % 3 === 1 ? '#571bc1' : '#b8c3ff';
-        return (
-          <div
-            key={i}
-            className="particle"
-            style={{
-              width: `${size}px`,
-              height: `${size}px`,
-              left: `${left}%`,
-              backgroundColor: color,
-              boxShadow: `0 0 ${size * 3}px ${color}`,
-              animationDuration: `${duration}s`,
-              animationDelay: `${delay}s`,
-            }}
-          />
-        );
-      })}
+        .orb-purple {
+          width: 500px; height: 500px;
+          background: radial-gradient(circle, #571bc1 0%, transparent 70%);
+          bottom: 10%; right: 10%;
+          animation: floatOrb2 18s ease-in-out infinite alternate;
+        }
 
-      {/* Overlays */}
-      <div className="scanlines" />
-      <div className="vignette" />
-    </div>
-  </>
-);
+        @keyframes floatOrb1 {
+          0% { transform: translate(0, 0) scale(1); }
+          100% { transform: translate(100px, 50px) scale(1.2); }
+        }
+
+        @keyframes floatOrb2 {
+          0% { transform: translate(0, 0) scale(1); }
+          100% { transform: translate(-100px, -50px) scale(0.8); }
+        }
+
+        /* Interactive Mouse Glow */
+        .mouse-glow {
+          position: absolute;
+          width: 600px;
+          height: 600px;
+          background: radial-gradient(circle, rgba(46, 91, 255, 0.08) 0%, transparent 70%);
+          border-radius: 50%;
+          pointer-events: none;
+          transition: transform 0.1s ease-out;
+          filter: blur(40px);
+        }
+
+        /* Scanning Line */
+        .scanner {
+          position: absolute;
+          width: 100%;
+          height: 2px;
+          background: linear-gradient(90deg, transparent, rgba(46, 91, 255, 0.2), transparent);
+          top: 0;
+          animation: scan 8s linear infinite;
+          opacity: 0.3;
+        }
+
+        @keyframes scan {
+          0% { top: -10%; }
+          100% { top: 110%; }
+        }
+      `}</style>
+
+      <div className="anim-bg-container">
+        <div className="nebula" />
+        <div className="grid-plane" />
+        <div className="orb orb-blue" />
+        <div className="orb orb-purple" />
+        <div 
+          className="mouse-glow" 
+          style={{ 
+            transform: `translate(calc(-50% + ${mousePos.x}px), calc(-50% + ${mousePos.y}px))`,
+            left: '50%',
+            top: '50%'
+          }} 
+        />
+        <div className="scanner" />
+        
+        {/* Subtle noise texture */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          backgroundImage: 'url("https://grainy-gradients.vercel.app/noise.svg")',
+          opacity: 0.05, pointerEvents: 'none', mixBlend-mode: 'overlay'
+        }} />
+      </div>
+    </>
+  );
+};
 
 export default AnimatedBackground;

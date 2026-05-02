@@ -90,125 +90,97 @@ const Chat = () => {
       {/* Chat Area */}
       <div style={{
         flex: 1, overflowY: 'auto', padding: '20px', paddingBottom: '140px',
-        display: 'flex', flexDirection: 'column', gap: '24px',
-        position: 'relative'
+        display: 'flex', flexDirection: 'column', gap: '24px', position: 'relative'
       }}>
-        {messages.length === 0 && !isTyping && (
+        {messages.length === 0 ? (
           <div style={{
-            position: 'absolute', top: '40%', left: '50%', transform: 'translate(-50%, -50%)',
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            width: '100%', pointerEvents: 'none'
+            height: '100%', opacity: 0.8, textAlign: 'center', padding: '0 40px'
           }}>
-            <div style={{ position: 'relative', width: '120px', height: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '32px' }}>
-              {/* Animated rings */}
-              <div className="pulse-ring pulse-ring-1"></div>
-              <div className="pulse-ring pulse-ring-2"></div>
-              <div className="pulse-ring pulse-ring-3"></div>
-              {/* Core logo */}
-              <div style={{
-                background: 'var(--primary-gradient)', borderRadius: '50%', width: '72px', height: '72px',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2,
-                boxShadow: '0 0 40px rgba(46, 91, 255, 0.5)'
-              }} className="core-pulse">
-                <Sparkles size={36} color="#fff" />
-              </div>
+            <div style={{ 
+              width: '120px', height: '120px', borderRadius: '50%', 
+              background: 'linear-gradient(135deg, rgba(46,91,255,0.1), rgba(87,27,193,0.1))',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              marginBottom: '24px', position: 'relative'
+            }} className="pulsing-aura">
+              <Sparkles size={60} color="var(--primary)" style={{ filter: 'drop-shadow(0 0 15px var(--primary))' }} />
             </div>
-            
-            <h3 className="headline-lg" style={{ 
-              background: 'linear-gradient(135deg, #ffffff 0%, #b8c3ff 100%)',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-              fontSize: '26px', marginBottom: '12px', textAlign: 'center', fontWeight: 700
-            }}>
-              Hi, {user?.name?.split(' ')[0] || 'there'}!
-            </h3>
-            <p style={{ color: 'var(--on-surface-variant)', fontSize: '15px', textAlign: 'center', maxWidth: '280px', lineHeight: '1.5' }}>
-              Your intelligent companion is ready. How can I help you today?
+            <h1 className="headline-lg" style={{ color: 'var(--primary)', marginBottom: '12px' }}>{t('howCanIHelp')}</h1>
+            <p className="body-md" style={{ color: 'var(--on-surface-variant)', maxWidth: '300px' }}>
+              I'm INTELLICORE, your advanced neural assistant. Ask me anything to get started.
             </p>
-
-            <style>{`
-              .pulse-ring {
-                position: absolute; border-radius: 50%;
-                background: radial-gradient(circle, rgba(46,91,255,0.4) 0%, rgba(87,27,193,0) 70%);
-                opacity: 0; animation: ripple 3s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-              }
-              .pulse-ring-1 { width: 100%; height: 100%; animation-delay: 0s; }
-              .pulse-ring-2 { width: 100%; height: 100%; animation-delay: 1s; }
-              .pulse-ring-3 { width: 100%; height: 100%; animation-delay: 2s; }
-              
-              @keyframes ripple {
-                0% { transform: scale(0.6); opacity: 0.8; }
-                100% { transform: scale(2.8); opacity: 0; }
-              }
-
-              .core-pulse {
-                animation: coreFloat 4s ease-in-out infinite;
-              }
-
-              @keyframes coreFloat {
-                0% { transform: translateY(0) scale(1); }
-                50% { transform: translateY(-12px) scale(1.05); }
-                100% { transform: translateY(0) scale(1); }
-              }
-            `}</style>
-          </div>
-        )}
-        {messages.map((msg, idx) => (
-          msg.sender === 'user' ? (
-            <div key={idx} style={{ alignSelf: 'flex-end', maxWidth: '85%' }}>
-              <div style={{
-                backgroundColor: 'var(--surface-container-high)',
-                padding: '16px', borderRadius: '20px', borderTopRightRadius: '4px',
-                color: 'var(--on-surface)', lineHeight: '1.5', border: '1px solid var(--outline-variant)'
-              }}>
-                {msg.message}
-              </div>
-              <div style={{ textAlign: 'right', fontSize: '10px', color: 'var(--outline)', marginTop: '4px' }}>
-                {new Date(msg.timestamp || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-              </div>
-            </div>
-          ) : (
-            <div key={idx} style={{ alignSelf: 'flex-start', maxWidth: '90%' }}>
-              <div style={{
-                background: 'linear-gradient(135deg, var(--electric-blue), var(--violet))',
-                padding: '20px', borderRadius: '20px', borderTopLeftRadius: '4px',
-                color: '#ffffff', lineHeight: '1.6', position: 'relative'
-              }} className="ai-aura">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', opacity: 0.9 }}>
-                  <Sparkles size={16} />
-                  <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '1px' }}>INTELLICORE</span>
+            
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', marginTop: '32px' }}>
+              {['Write code', 'Explain AI', 'Brainstorm ideas'].map((item) => (
+                <div key={item} onClick={() => setInput(item)} style={{
+                  padding: '8px 16px', borderRadius: '20px', border: '1px solid var(--outline-variant)',
+                  fontSize: '13px', color: 'var(--on-surface-variant)', cursor: 'pointer',
+                  backgroundColor: 'rgba(255,255,255,0.02)', transition: 'all 0.2s'
+                }}>
+                  {item}
                 </div>
-                
-                {msg.message.includes('def fibonacci') ? (
-                  <>
-                    <p style={{ marginBottom: '16px' }}>
-                      {msg.message.split('def fibonacci')[0]}
-                    </p>
-                    <div style={{
-                      backgroundColor: '#1e1e1e', borderRadius: '8px', overflow: 'hidden'
-                    }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', backgroundColor: '#2d2d2d', fontSize: '12px', color: '#ccc' }}>
-                        <span>fibonacci.py</span>
-                        <Copy size={14} style={{ cursor: 'pointer' }} />
-                      </div>
-                      <pre style={{ margin: 0, padding: '16px', fontSize: '14px', overflowX: 'auto' }}>
-                        <code style={{ color: '#d4d4d4' }}>
-                          <span style={{ color: '#c586c0' }}>def</span> <span style={{ color: '#dcdcaa' }}>fibonacci</span>(n):{'\n'}
-                          {'    '}sequence = [<span style={{ color: '#b5cea8' }}>0</span>, <span style={{ color: '#b5cea8' }}>1</span>]{'\n'}
-                          {'    '}<span style={{ color: '#c586c0' }}>while</span> <span style={{ color: '#4ec9b0' }}>len</span>(sequence) {'<'} n:{'\n'}
-                          {'        '}next_val = sequence[<span style={{ color: '#b5cea8' }}>-1</span>] + sequence[<span style={{ color: '#b5cea8' }}>-2</span>]{'\n'}
-                          {'        '}sequence.append(next_val){'\n'}
-                          {'    '}<span style={{ color: '#c586c0' }}>return</span> sequence[:n]
-                        </code>
-                      </pre>
-                    </div>
-                  </>
-                ) : (
-                  <p>{msg.message}</p>
-                )}
-              </div>
+              ))}
             </div>
-          )
-        ))}
+          </div>
+        ) : (
+          messages.map((msg, idx) => (
+            msg.sender === 'user' ? (
+              <div key={idx} style={{ alignSelf: 'flex-end', maxWidth: '85%' }}>
+                <div style={{
+                  backgroundColor: 'var(--surface-container-high)',
+                  padding: '16px', borderRadius: '20px', borderTopRightRadius: '4px',
+                  color: 'var(--on-surface)', lineHeight: '1.5', border: '1px solid var(--outline-variant)'
+                }}>
+                  {msg.message}
+                </div>
+                <div style={{ textAlign: 'right', fontSize: '10px', color: 'var(--outline)', marginTop: '4px' }}>
+                  {new Date(msg.timestamp || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                </div>
+              </div>
+            ) : (
+              <div key={idx} style={{ alignSelf: 'flex-start', maxWidth: '90%' }}>
+                <div style={{
+                  background: 'linear-gradient(135deg, var(--electric-blue), var(--violet))',
+                  padding: '20px', borderRadius: '20px', borderTopLeftRadius: '4px',
+                  color: '#ffffff', lineHeight: '1.6', position: 'relative'
+                }} className="ai-aura">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', opacity: 0.9 }}>
+                    <Sparkles size={16} />
+                    <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '1px' }}>INTELLICORE</span>
+                  </div>
+                  
+                  {msg.message.includes('def fibonacci') ? (
+                    <>
+                      <p style={{ marginBottom: '16px' }}>
+                        {msg.message.split('def fibonacci')[0]}
+                      </p>
+                      <div style={{
+                        backgroundColor: '#1e1e1e', borderRadius: '8px', overflow: 'hidden'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', backgroundColor: '#2d2d2d', fontSize: '12px', color: '#ccc' }}>
+                          <span>fibonacci.py</span>
+                          <Copy size={14} style={{ cursor: 'pointer' }} />
+                        </div>
+                        <pre style={{ margin: 0, padding: '16px', fontSize: '14px', overflowX: 'auto' }}>
+                          <code style={{ color: '#d4d4d4' }}>
+                            <span style={{ color: '#c586c0' }}>def</span> <span style={{ color: '#dcdcaa' }}>fibonacci</span>(n):{'\n'}
+                            {'    '}sequence = [<span style={{ color: '#b5cea8' }}>0</span>, <span style={{ color: '#b5cea8' }}>1</span>]{'\n'}
+                            {'    '}<span style={{ color: '#c586c0' }}>while</span> <span style={{ color: '#4ec9b0' }}>len</span>(sequence) {'<'} n:{'\n'}
+                            {'        '}next_val = sequence[<span style={{ color: '#b5cea8' }}>-1</span>] + sequence[<span style={{ color: '#b5cea8' }}>-2</span>]{'\n'}
+                            {'        '}sequence.append(next_val){'\n'}
+                            {'    '}<span style={{ color: '#c586c0' }}>return</span> sequence[:n]
+                          </code>
+                        </pre>
+                      </div>
+                    </>
+                  ) : (
+                    <p>{msg.message}</p>
+                  )}
+                </div>
+              </div>
+            )
+          ))
+        )}
         {isTyping && (
           <div style={{ alignSelf: 'flex-start', maxWidth: '85%' }}>
             <div style={{
