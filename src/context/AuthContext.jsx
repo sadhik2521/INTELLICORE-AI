@@ -14,9 +14,11 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, []);
 
+  const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3001' : `http://${window.location.hostname}:3001`;
+
   const login = async (email, password) => {
     try {
-      const response = await fetch('http://localhost:3001/api/login', {
+      const response = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -38,7 +40,7 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (name, email, password, avatar = null) => {
     try {
-      const response = await fetch('http://localhost:3001/api/signup', {
+      const response = await fetch(`${API_URL}/api/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password }),

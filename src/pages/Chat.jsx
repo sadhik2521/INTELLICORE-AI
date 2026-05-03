@@ -23,10 +23,12 @@ const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
+  const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3001' : `http://${window.location.hostname}:3001`;
+
   const fetchChats = async () => {
     if (!user) return;
     try {
-      const res = await fetch(`http://localhost:3001/api/chats/${user.id}`);
+      const res = await fetch(`${API_URL}/api/chats/${user.id}`);
       const data = await res.json();
       setMessages(data);
     } catch (e) {
@@ -42,7 +44,7 @@ const Chat = () => {
     setIsTyping(true);
 
     try {
-      await fetch('http://localhost:3001/api/chats', {
+      await fetch(`${API_URL}/api/chats`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newMessage)
@@ -74,7 +76,7 @@ const Chat = () => {
         backdropFilter: 'blur(10px)'
       }}>
         <Menu size={24} color="var(--outline)" />
-        <h2 className="headline-lg" onClick={() => window.location.reload()} style={{ 
+        <h2 className="headline-lg" onClick={() => { setMessages([]); setInput(''); }} style={{ 
           background: 'linear-gradient(135deg, #fff 30%, var(--primary) 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
