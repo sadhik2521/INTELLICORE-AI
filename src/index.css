@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
+  /* Default Dark Theme */
   --surface: #101415;
   --surface-dim: #101415;
   --surface-bright: #363a3b;
@@ -36,11 +37,40 @@
   --background: #101415;
   --on-background: #e0e3e5;
   --surface-variant: #323537;
-
-  /* Additional gradient and glow tokens based on DESIGN.md */
   --electric-blue: #2e5bff;
   --violet: #571bc1;
   --primary-gradient: linear-gradient(135deg, var(--electric-blue), var(--violet));
+}
+
+[data-theme='light'] {
+  --surface: #f8fafb;
+  --surface-dim: #d8dbdd;
+  --surface-bright: #f8fafb;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f1f4f5;
+  --surface-container: #ebedf0;
+  --surface-container-high: #e5e8eb;
+  --surface-container-highest: #dfe2e5;
+  --on-surface: #191c1e;
+  --on-surface-variant: #43474e;
+  --inverse-surface: #2e3133;
+  --inverse-on-surface: #f0f1f3;
+  --outline: #73777f;
+  --outline-variant: #c3c7cf;
+  --primary: #005bc1;
+  --on-primary: #ffffff;
+  --primary-container: #d8e2ff;
+  --on-primary-container: #001a41;
+  --secondary: #605d62;
+  --on-secondary: #ffffff;
+  --secondary-container: #e6e1e9;
+  --on-secondary-container: #1d1a22;
+  --background: #f8fafb;
+  --on-background: #191c1e;
+  --surface-variant: #e0e2ec;
+  --electric-blue: #005bc1;
+  --violet: #6750a4;
+  --primary-gradient: linear-gradient(135deg, #005bc1, #6750a4);
 }
 
 * {
@@ -55,7 +85,7 @@ html {
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: #080a0b;
+  background-color: var(--background);
   color: var(--on-background);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -65,6 +95,7 @@ body {
   align-items: flex-start;
   overflow-x: hidden;
   position: relative;
+  transition: background-color 0.3s ease;
 }
 
 /* Animated gradient orbs in background */
@@ -82,7 +113,7 @@ body::after {
 body::before {
   width: 520px;
   height: 520px;
-  background: radial-gradient(circle, #2e5bff 0%, transparent 70%);
+  background: radial-gradient(circle, var(--electric-blue) 0%, transparent 70%);
   top: -120px;
   left: -120px;
   animation: orbFloat1 10s ease-in-out infinite alternate;
@@ -91,7 +122,7 @@ body::before {
 body::after {
   width: 460px;
   height: 460px;
-  background: radial-gradient(circle, #571bc1 0%, transparent 70%);
+  background: radial-gradient(circle, var(--violet) 0%, transparent 70%);
   bottom: -80px;
   right: -80px;
   animation: orbFloat2 13s ease-in-out infinite alternate;
@@ -121,7 +152,8 @@ body::after {
   position: relative;
   overflow-x: hidden;
   overflow-y: hidden;
-  box-shadow: 0 0 60px rgba(0, 0, 0, 0.8), 0 0 1px rgba(255,255,255,0.08);
+  box-shadow: 0 0 60px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255,255,255,0.08);
+  transition: background-color 0.3s ease;
 }
 
 /* Typography */
@@ -133,17 +165,18 @@ body::after {
 
 /* Components */
 .glass-card {
-  background: rgba(50, 53, 55, 0.6); /* surface-variant with opacity */
+  background: var(--surface-container-high);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--outline-variant);
   border-radius: 1.5rem; /* xl */
   padding: 16px;
+  transition: all 0.3s ease;
 }
 
 .btn-primary {
   background: var(--primary-gradient);
-  color: #ffffff;
+  color: var(--on-primary);
   border: none;
   border-radius: 0.75rem; /* md */
   padding: 12px 24px;
@@ -163,10 +196,10 @@ body::after {
 }
 
 .btn-secondary {
-  background: rgba(50, 53, 55, 0.6);
+  background: var(--surface-container-high);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #ffffff;
+  border: 1px solid var(--outline-variant);
+  color: var(--on-surface);
   border-radius: 0.75rem; /* md */
   padding: 12px 24px;
   font-family: 'Inter', sans-serif;
@@ -203,7 +236,7 @@ body::after {
 }
 
 .ai-aura {
-  box-shadow: 0 0 32px rgba(46, 91, 255, 0.3); /* Electric Blue outer glow */
+  box-shadow: 0 0 32px rgba(46, 91, 255, 0.3);
 }
 
 /* Animations */

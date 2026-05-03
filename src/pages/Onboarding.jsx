@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Globe, LogIn, Compass, ArrowRight } from 'lucide-react';
+import { Sparkles, Globe, LogIn, Compass, ArrowRight, Sun, Moon } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
+import { useTheme } from '../context/ThemeContext';
 
 const Onboarding = () => {
   const navigate = useNavigate();
   const { language, changeLanguage, t } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
   const [showLangMenu, setShowLangMenu] = useState(false);
 
   const toggleLangMenu = () => setShowLangMenu(!showLangMenu);
@@ -22,7 +24,8 @@ const Onboarding = () => {
       height: '100vh',
       padding: '24px',
       position: 'relative',
-      overflowY: 'auto'
+      overflowY: 'auto',
+      backgroundColor: 'var(--background)'
     }}>
       {/* Background graphic effect */}
       <div style={{
@@ -38,48 +41,67 @@ const Onboarding = () => {
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10, position: 'relative' }}>
-        <h1 className="headline-lg" onClick={() => navigate('/')} style={{ color: 'var(--primary)', margin: 0, cursor: 'pointer' }}>INTELLICORE AI</h1>
+        <h1 className="headline-lg" onClick={() => navigate('/')} style={{ 
+          background: 'linear-gradient(135deg, var(--on-surface) 30%, var(--primary) 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          margin: 0, fontSize: '20px', cursor: 'pointer', fontWeight: 700 
+        }}>INTELLICORE AI</h1>
         
-        {/* Language Selector */}
-        <div style={{ position: 'relative' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {/* Theme Selector */}
           <div 
-            onClick={toggleLangMenu}
+            onClick={() => toggleTheme(theme === 'dark' ? 'light' : 'dark')}
             style={{ 
-              display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--on-surface-variant)', 
-              fontSize: '14px', cursor: 'pointer', padding: '8px', borderRadius: '8px',
-              backgroundColor: showLangMenu ? 'rgba(255,255,255,0.1)' : 'transparent'
+              display: 'flex', alignItems: 'center', justifyContent: 'center', 
+              color: 'var(--on-surface-variant)', cursor: 'pointer', padding: '8px', 
+              borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.05)'
             }}
           >
-            <span>{language.toUpperCase()}</span>
-            <Globe size={16} />
+            {theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
           </div>
-
-          {showLangMenu && (
-            <div className="glass-card" style={{
-              position: 'absolute', top: '40px', right: '0', 
-              display: 'flex', flexDirection: 'column', gap: '8px',
-              padding: '8px', zIndex: 20, minWidth: '120px'
-            }}>
-              <div 
-                onClick={() => selectLanguage('en')} 
-                style={{ padding: '8px 12px', cursor: 'pointer', borderRadius: '4px', backgroundColor: language === 'en' ? 'rgba(46,91,255,0.2)' : 'transparent' }}
-              >
-                English
-              </div>
-              <div 
-                onClick={() => selectLanguage('hi')} 
-                style={{ padding: '8px 12px', cursor: 'pointer', borderRadius: '4px', backgroundColor: language === 'hi' ? 'rgba(46,91,255,0.2)' : 'transparent' }}
-              >
-                Hindi
-              </div>
-              <div 
-                onClick={() => selectLanguage('te')} 
-                style={{ padding: '8px 12px', cursor: 'pointer', borderRadius: '4px', backgroundColor: language === 'te' ? 'rgba(46,91,255,0.2)' : 'transparent' }}
-              >
-                Telugu
-              </div>
+          
+          {/* Language Selector */}
+          <div style={{ position: 'relative' }}>
+            <div 
+              onClick={toggleLangMenu}
+              style={{ 
+                display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--on-surface-variant)', 
+                fontSize: '14px', cursor: 'pointer', padding: '8px', borderRadius: '8px',
+                backgroundColor: showLangMenu ? 'rgba(255,255,255,0.1)' : 'transparent'
+              }}
+            >
+              <span>{language.toUpperCase()}</span>
+              <Globe size={16} />
             </div>
-          )}
+
+            {showLangMenu && (
+              <div className="glass-card" style={{
+                position: 'absolute', top: '40px', right: '0', 
+                display: 'flex', flexDirection: 'column', gap: '8px',
+                padding: '8px', zIndex: 20, minWidth: '120px'
+              }}>
+                <div 
+                  onClick={() => selectLanguage('en')} 
+                  style={{ padding: '8px 12px', cursor: 'pointer', borderRadius: '4px', backgroundColor: language === 'en' ? 'rgba(46,91,255,0.2)' : 'transparent' }}
+                >
+                  English
+                </div>
+                <div 
+                  onClick={() => selectLanguage('hi')} 
+                  style={{ padding: '8px 12px', cursor: 'pointer', borderRadius: '4px', backgroundColor: language === 'hi' ? 'rgba(46,91,255,0.2)' : 'transparent' }}
+                >
+                  Hindi
+                </div>
+                <div 
+                  onClick={() => selectLanguage('te')} 
+                  style={{ padding: '8px 12px', cursor: 'pointer', borderRadius: '4px', backgroundColor: language === 'te' ? 'rgba(46,91,255,0.2)' : 'transparent' }}
+                >
+                  Telugu
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 

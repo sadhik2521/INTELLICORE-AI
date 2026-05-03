@@ -1,30 +1,45 @@
 import React from 'react';
-import { Menu, Moon, Sparkles, History, LogOut, ChevronRight, ChevronDown, Sun } from 'lucide-react';
+import { Moon, Sparkles, History, LogOut, ChevronRight, ChevronDown, Sun } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import BottomNav from '../components/BottomNav';
 import { useNavigate } from 'react-router-dom';
+import { useTheme } from '../context/ThemeContext';
+import { useModel } from '../context/ModelContext';
 
 const Profile = () => {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
+  const { selectedModel, setSelectedModel, models } = useModel();
   const { t } = useLanguage();
   const navigate = useNavigate();
+
+  const [showModelMenu, setShowModelMenu] = React.useState(false);
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
 
+  const currentModelName = models.find(m => m.id === selectedModel)?.name || 'Select Model';
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', position: 'relative', overflow: 'hidden', backgroundColor: 'var(--background)' }}>
       {/* Header */}
       <div style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
         padding: '16px 20px', zIndex: 10, backgroundColor: 'var(--surface-container-lowest)',
         borderBottom: '1px solid var(--surface-variant)'
       }}>
-        <Menu size={24} color="var(--outline)" />
-        <h2 className="headline-lg" onClick={() => window.location.reload()} style={{ color: 'var(--primary)', margin: 0, fontSize: '20px', cursor: 'pointer' }}>INTELLICORE AI</h2>
+        <div onClick={() => navigate(-1)} style={{ cursor: 'pointer' }}>
+          <ChevronRight size={24} color="var(--outline)" style={{ transform: 'rotate(180deg)' }} />
+        </div>
+        <h2 className="headline-lg" onClick={() => window.location.reload()} style={{ 
+          background: 'linear-gradient(135deg, var(--on-surface) 30%, var(--primary) 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          margin: 0, fontSize: '20px', cursor: 'pointer', fontWeight: 700 
+        }}>INTELLICORE AI</h2>
         <div style={{ width: '32px', height: '32px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--electric-blue)', backgroundColor: 'rgba(255,255,255,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {user?.avatar
             ? <img src={user.avatar} alt="Avatar" style={{width: '100%', height: '100%', objectFit: 'cover'}} />
@@ -55,7 +70,7 @@ const Profile = () => {
               border: '2px solid var(--surface-container-high)'
             }}>{t('pro')}</div>
           </div>
-          <h3 className="headline-lg" style={{ fontSize: '20px', marginBottom: '4px' }}>{user?.name || 'Alex Chen'}</h3>
+          <h3 className="headline-lg" style={{ fontSize: '20px', marginBottom: '4px', color: 'var(--on-surface)' }}>{user?.name || 'Alex Chen'}</h3>
           <p style={{ color: 'var(--on-surface-variant)', fontSize: '14px' }}>{user?.email || 'alex.chen@intellicore.io'}</p>
         </div>
 
@@ -66,20 +81,38 @@ const Profile = () => {
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ padding: '10px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '12px' }}>
-              <Moon size={20} color="var(--primary)" />
+              {theme === 'dark' ? <Moon size={20} color="var(--primary)" /> : <Sun size={20} color="var(--primary)" />}
             </div>
             <div>
-              <div style={{ fontSize: '16px', fontWeight: 500 }}>{t('themePreferences')}</div>
-              <div style={{ fontSize: '12px', color: 'var(--on-surface-variant)' }}>{t('darkModeActive')}</div>
+              <div style={{ fontSize: '16px', fontWeight: 500, color: 'var(--on-surface)' }}>{t('themePreferences')}</div>
+              <div style={{ fontSize: '12px', color: 'var(--on-surface-variant)' }}>{theme === 'dark' ? t('darkModeActive') : 'Light Mode Active'}</div>
             </div>
           </div>
           <div style={{ 
             display: 'flex', backgroundColor: 'var(--surface-container-high)', borderRadius: '24px', padding: '4px' 
           }}>
-            <div style={{ padding: '6px 12px', borderRadius: '20px', color: 'var(--on-surface-variant)' }}>
+            <div 
+              onClick={() => toggleTheme('light')}
+              style={{ 
+                padding: '6px 12px', borderRadius: '20px', 
+                backgroundColor: theme === 'light' ? 'var(--electric-blue)' : 'transparent',
+                color: theme === 'light' ? '#fff' : 'var(--on-surface-variant)',
+                boxShadow: theme === 'light' ? '0 0 10px rgba(46,91,255,0.4)' : 'none',
+                cursor: 'pointer', transition: 'all 0.2s'
+              }}
+            >
               <Sun size={16} />
             </div>
-            <div style={{ padding: '6px 12px', borderRadius: '20px', backgroundColor: 'var(--electric-blue)', color: '#fff', boxShadow: '0 0 10px rgba(46,91,255,0.4)' }}>
+            <div 
+              onClick={() => toggleTheme('dark')}
+              style={{ 
+                padding: '6px 12px', borderRadius: '20px', 
+                backgroundColor: theme === 'dark' ? 'var(--electric-blue)' : 'transparent',
+                color: theme === 'dark' ? '#fff' : 'var(--on-surface-variant)',
+                boxShadow: theme === 'dark' ? '0 0 10px rgba(46,91,255,0.4)' : 'none',
+                cursor: 'pointer', transition: 'all 0.2s'
+              }}
+            >
               <Moon size={16} />
             </div>
           </div>
@@ -88,42 +121,53 @@ const Profile = () => {
         {/* AI Model Selection */}
         <div className="glass-card" style={{ 
           display: 'flex', flexDirection: 'column', gap: '16px',
-          padding: '20px', borderRadius: '16px', backgroundColor: 'var(--surface-container)', border: '1px solid var(--surface-variant)'
+          padding: '20px', borderRadius: '16px', backgroundColor: 'var(--surface-container)', border: '1px solid var(--surface-variant)',
+          position: 'relative'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ padding: '10px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '12px' }}>
               <Sparkles size={20} color="var(--secondary)" />
             </div>
             <div>
-              <div style={{ fontSize: '16px', fontWeight: 500 }}>{t('aiModelSelection')}</div>
-              <div style={{ fontSize: '12px', color: 'var(--on-surface-variant)' }}>IntelliCore-4 Turbo (Stable)</div>
+              <div style={{ fontSize: '16px', fontWeight: 500, color: 'var(--on-surface)' }}>{t('aiModelSelection')}</div>
+              <div style={{ fontSize: '12px', color: 'var(--on-surface-variant)' }}>{currentModelName}</div>
             </div>
           </div>
-          <div style={{ 
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            padding: '12px 16px', border: '1px solid var(--electric-blue)', borderRadius: '8px',
-            backgroundColor: 'rgba(46,91,255,0.05)'
-          }}>
-            <span style={{ fontSize: '14px' }}>IntelliCore-4 Turbo (Stable)</span>
-            <ChevronDown size={16} color="var(--outline)" />
+          
+          <div 
+            onClick={() => setShowModelMenu(!showModelMenu)}
+            style={{ 
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              padding: '12px 16px', border: '1px solid var(--electric-blue)', borderRadius: '8px',
+              backgroundColor: 'rgba(46,91,255,0.05)', cursor: 'pointer'
+            }}
+          >
+            <span style={{ fontSize: '14px', color: 'var(--on-surface)' }}>{currentModelName}</span>
+            <ChevronDown size={16} color="var(--outline)" style={{ transform: showModelMenu ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
           </div>
-        </div>
 
-        {/* History */}
-        <div className="glass-card" style={{ 
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '20px', borderRadius: '16px', backgroundColor: 'var(--surface-container)', border: '1px solid var(--surface-variant)', cursor: 'pointer'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <div style={{ padding: '10px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '12px' }}>
-              <History size={20} color="var(--outline)" />
+          {showModelMenu && (
+            <div className="glass-card" style={{
+              position: 'absolute', top: '100%', left: 0, width: '100%', zIndex: 50,
+              marginTop: '8px', padding: '8px', display: 'flex', flexDirection: 'column', gap: '4px',
+              backgroundColor: 'var(--surface-container-high)', border: '1px solid var(--outline-variant)'
+            }}>
+              {models.map(m => (
+                <div 
+                  key={m.id}
+                  onClick={() => { setSelectedModel(m.id); setShowModelMenu(false); }}
+                  style={{ 
+                    padding: '12px', borderRadius: '6px', cursor: 'pointer',
+                    backgroundColor: selectedModel === m.id ? 'rgba(46,91,255,0.15)' : 'transparent',
+                    color: selectedModel === m.id ? 'var(--primary)' : 'var(--on-surface)',
+                    fontSize: '14px'
+                  }}
+                >
+                  {m.name} <span style={{ fontSize: '10px', opacity: 0.5 }}>({m.provider})</span>
+                </div>
+              ))}
             </div>
-            <div>
-              <div style={{ fontSize: '16px', fontWeight: 500 }}>{t('history')}</div>
-              <div style={{ fontSize: '12px', color: 'var(--on-surface-variant)' }}>{t('activeSessions')}</div>
-            </div>
-          </div>
-          <ChevronRight size={20} color="var(--outline)" />
+          )}
         </div>
 
         {/* Log Out */}
@@ -141,11 +185,6 @@ const Profile = () => {
             </div>
           </div>
           <ChevronRight size={20} color="var(--outline)" />
-        </div>
-
-        {/* Delete Account */}
-        <div style={{ textAlign: 'center', marginTop: '16px', color: 'var(--outline)', fontSize: '14px', letterSpacing: '1px', cursor: 'pointer' }}>
-          {t('deleteAccount')}
         </div>
 
       </div>

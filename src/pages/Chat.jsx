@@ -6,16 +6,21 @@ import { useLanguage } from '../context/LanguageContext';
 import BottomNav from '../components/BottomNav';
 import AnimatedBackground from '../components/AnimatedBackground';
 
+import { useModel } from '../context/ModelContext';
+
 const Chat = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
+  const { selectedModel } = useModel();
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const messagesEndRef = useRef(null);
   const menuRef = useRef(null);
+  const historyRef = useRef(null);
 
   useEffect(() => {
     fetchChats();
@@ -30,17 +35,20 @@ const Chat = () => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
         setShowProfileMenu(false);
       }
+      if (historyRef.current && !historyRef.current.contains(event.target) && !event.target.closest('.menu-trigger')) {
+        setShowHistory(false);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   // Use env variable for deployed backend (Render), fallback to localhost for dev
-  let rawApiUrl = import.meta.env.VITE_API_URL 
-    || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-        ? 'http://localhost:3001' 
-        : null);
-        
+  let rawApiUrl = import.meta.env.VITE_API_URL
+    || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:3001'
+      : null);
+
   // Remove trailing slash if present
   const API_URL = rawApiUrl ? rawApiUrl.replace(/\/$/, '') : null;
 
@@ -99,7 +107,7 @@ const Chat = () => {
         await fetch(`${API_URL}/api/chats`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(newMessage)
+          body: JSON.stringify({ ...newMessage, model: selectedModel })
         });
         setTimeout(() => {
           fetchChats();
@@ -137,14 +145,16 @@ const Chat = () => {
         backgroundColor: 'rgba(5, 6, 8, 0.6)', zIndex: 10,
         backdropFilter: 'blur(10px)'
       }}>
-        <Menu size={24} color="var(--outline)" />
+        <div className="menu-trigger" onClick={() => setShowHistory(!showHistory)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+          <Menu size={24} color="var(--outline)" />
+        </div>
         <h2 className="headline-lg" onClick={() => { setMessages([]); setInput(''); }} style={{
-          background: 'linear-gradient(135deg, #fff 30%, var(--primary) 100%)',
+          background: 'linear-gradient(135deg, var(--on-surface) 30%, var(--primary) 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
           margin: 0, fontSize: '20px', cursor: 'pointer', fontWeight: 700
         }}>INTELLICORE AI</h2>
-        <div 
+        <div
           onClick={() => setShowProfileMenu(!showProfileMenu)}
           style={{
             width: '32px', height: '32px', borderRadius: '50%',
@@ -155,10 +165,10 @@ const Chat = () => {
           }}
         >
           {user?.avatar ? (
-            <img 
-              src={user.avatar} 
-              alt="Avatar" 
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+            <img
+              src={user.avatar}
+              alt="Avatar"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           ) : (
             <span style={{ color: 'var(--on-surface-variant)', fontSize: '12px', fontWeight: 600 }}>
@@ -176,7 +186,7 @@ const Chat = () => {
             boxShadow: '0 10px 40px rgba(0,0,0,0.5)', animation: 'fadeIn 0.2s ease-out'
           }}>
             <div style={{ marginBottom: '16px', textAlign: 'center' }}>
-              <div style={{ 
+              <div style={{
                 width: '60px', height: '60px', borderRadius: '50%', margin: '0 auto 12px',
                 border: '2px solid var(--primary)', padding: '2px'
               }}>
@@ -191,10 +201,10 @@ const Chat = () => {
               <h3 style={{ color: '#fff', fontSize: '16px', margin: '0 0 4px 0' }}>{user?.name}</h3>
               <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', margin: 0 }}>{user?.email}</p>
             </div>
-            
+
             <div style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.05)', margin: '12px 0' }} />
-            
-            <button 
+
+            <button
               onClick={() => navigate('/profile')}
               style={{ width: '100%', padding: '10px', background: 'transparent', border: 'none', color: '#fff', textAlign: 'left', cursor: 'pointer', fontSize: '14px', borderRadius: '8px', transition: 'background 0.2s' }}
               onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.05)'}
@@ -202,7 +212,7 @@ const Chat = () => {
             >
               View Profile
             </button>
-            <button 
+            <button
               onClick={() => { localStorage.removeItem('intellicoreUser'); window.location.reload(); }}
               style={{ width: '100%', padding: '10px', background: 'transparent', border: 'none', color: '#ff4444', textAlign: 'left', cursor: 'pointer', fontSize: '14px', borderRadius: '8px', transition: 'background 0.2s' }}
               onMouseOver={(e) => e.target.style.background = 'rgba(255,68,68,0.05)'}
@@ -236,7 +246,7 @@ const Chat = () => {
             <h1 className="headline-lg" style={{
               color: '#fff', marginBottom: '12px', fontSize: '26px', fontWeight: 700,
               textShadow: '0 2px 10px rgba(0,0,0,0.5)'
-            }}>{t('howCanIHelp')}</h1>
+            }}>{t('how Can I Help')}</h1>
             <p className="body-md" style={{ color: 'rgba(255,255,255,0.6)', maxWidth: '300px', lineHeight: '1.6', marginBottom: '32px' }}>
               I'm INTELLICORE, your advanced neural assistant. Ask me anything to get started.
             </p>
@@ -398,6 +408,68 @@ const Chat = () => {
           </div>
         </div>
       )}
+
+      {/* History Sidebar */}
+      <div 
+        ref={historyRef}
+        style={{
+          position: 'absolute', top: 0, left: 0, height: '100%',
+          width: '280px', backgroundColor: 'rgba(10, 12, 15, 0.95)',
+          backdropFilter: 'blur(20px)', zIndex: 100,
+          borderRight: '1px solid rgba(255,255,255,0.05)',
+          transform: showHistory ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          display: 'flex', flexDirection: 'column', padding: '24px'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+          <h3 style={{ color: '#fff', fontSize: '18px', fontWeight: 700, margin: 0 }}>Search History</h3>
+          <div onClick={() => setShowHistory(false)} style={{ cursor: 'pointer', color: 'rgba(255,255,255,0.4)' }}>
+            <Menu size={20} />
+          </div>
+        </div>
+
+        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {messages.filter(m => m.sender === 'user').length === 0 ? (
+            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '14px', textAlign: 'center', marginTop: '40px' }}>
+              No history yet
+            </p>
+          ) : (
+            [...new Set(messages.filter(m => m.sender === 'user').map(m => m.message))].reverse().map((msg, i) => (
+              <div 
+                key={i}
+                onClick={() => { setInput(msg); setShowHistory(false); }}
+                style={{
+                  padding: '12px 16px', borderRadius: '12px',
+                  backgroundColor: 'rgba(255,255,255,0.03)',
+                  color: 'rgba(255,255,255,0.7)', fontSize: '13px',
+                  cursor: 'pointer', whiteSpace: 'nowrap', overflow: 'hidden',
+                  textOverflow: 'ellipsis', border: '1px solid transparent',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+                onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'transparent'; }}
+              >
+                {msg}
+              </div>
+            ))
+          )}
+        </div>
+
+        <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+          <button 
+            onClick={() => { setMessages([]); setShowHistory(false); }}
+            style={{ 
+              width: '100%', padding: '12px', borderRadius: '12px',
+              backgroundColor: 'rgba(255,68,68,0.1)', color: '#ff4444',
+              border: '1px solid rgba(255,68,68,0.2)', cursor: 'pointer',
+              fontSize: '13px', fontWeight: 600
+            }}
+          >
+            Clear Current Chat
+          </button>
+        </div>
+      </div>
 
       {/* Bottom Nav */}
       <BottomNav />
