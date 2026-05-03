@@ -4,10 +4,11 @@ import { ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { GoogleSignUpButton } from '../components/RealOAuthButtons';
+// Removed AnimatedBackground import
 
 const Login = () => {
   const navigate = useNavigate();
-  const { login, oauthLogin } = useAuth();
+  const { login, oauthLogin, isAuthLoading } = useAuth();
   const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -49,7 +50,7 @@ const Login = () => {
       height: '100vh',
       padding: '32px 24px',
       position: 'relative',
-      backgroundColor: 'transparent',
+      background: 'transparent',
     }}>
 
       <div style={{ textAlign: 'center', marginTop: '16px', marginBottom: '24px' }}>
@@ -106,7 +107,7 @@ const Login = () => {
               placeholder="Email"
               style={{
                 width: '100%', border: 'none', background: 'transparent', 
-                color: 'var(--on-surface)', fontSize: '16px', outline: 'none',
+                color: '#101415', fontSize: '16px', outline: 'none',
                 fontFamily: 'Inter'
               }}
               required
@@ -131,7 +132,7 @@ const Login = () => {
               placeholder="Password"
               style={{
                 width: '100%', border: 'none', background: 'transparent', 
-                color: 'var(--on-surface)', fontSize: '16px', outline: 'none',
+                color: '#101415', fontSize: '16px', outline: 'none',
                 fontFamily: 'Inter', letterSpacing: password ? '2px' : 'normal'
               }}
               required
@@ -141,8 +142,8 @@ const Login = () => {
 
         {error && <div style={{ color: 'var(--error)', fontSize: '14px', textAlign: 'center' }}>{error}</div>}
 
-        <button type="submit" className="btn-primary" style={{ marginTop: '8px', padding: '16px' }}>
-          {t('signIn')} <ArrowRight size={20} />
+        <button type="submit" className="btn-primary" disabled={isAuthLoading} style={{ marginTop: '8px', padding: '16px', opacity: isAuthLoading ? 0.7 : 1 }}>
+          {isAuthLoading ? 'Processing...' : t('signIn')} {!isAuthLoading && <ArrowRight size={20} />}
         </button>
       </form>
 

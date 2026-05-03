@@ -7,6 +7,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('intellicoreUser');
@@ -14,6 +15,9 @@ export const AuthProvider = ({ children }) => {
       setUser(JSON.parse(storedUser));
     }
     setLoading(false);
+
+    // PRE-WARM SERVER: Start waking up Render immediately
+    fetch('https://intellicore-ai-ro40.onrender.com/api/test').catch(() => {});
 
     // Initialize Google Auth for mobile
     if (Capacitor.isNativePlatform()) {
@@ -33,6 +37,7 @@ export const AuthProvider = ({ children }) => {
   }, [API_URL]);
 
   const login = async (email, password) => {
+    setIsAuthLoading(true);
     try {
       const response = await fetch(`${API_URL}/api/login`, {
         method: 'POST',
@@ -41,20 +46,22 @@ export const AuthProvider = ({ children }) => {
       });
       if (!response.ok) throw new Error('Login failed');
       const data = await response.json();
-      // Preserve avatar from localStorage if it exists (avatar is stored locally)
       const stored = localStorage.getItem('intellicoreUser');
       const existingAvatar = stored ? JSON.parse(stored).avatar : null;
       const userData = { ...data, avatar: existingAvatar || null };
       setUser(userData);
       localStorage.setItem('intellicoreUser', JSON.stringify(userData));
+      setIsAuthLoading(false);
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
+      setIsAuthLoading(false);
       return { success: false, error: error.message };
     }
   };
 
   const signup = async (name, email, password, avatar = null) => {
+    setIsAuthLoading(true);
     try {
       const response = await fetch(`${API_URL}/api/signup`, {
         method: 'POST',
@@ -63,13 +70,14 @@ export const AuthProvider = ({ children }) => {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Signup failed');
-      // Store avatar (base64) locally alongside user data
       const userData = { ...data, avatar: avatar || null };
       setUser(userData);
       localStorage.setItem('intellicoreUser', JSON.stringify(userData));
+      setIsAuthLoading(false);
       return { success: true };
     } catch (error) {
       console.error('Signup error:', error);
+      setIsAuthLoading(false);
       return { success: false, error: error.message };
     }
   };

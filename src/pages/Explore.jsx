@@ -33,23 +33,11 @@ const Explore = () => {
         
         {/* Intro */}
         <div style={{ textAlign: 'center', marginBottom: '8px', marginTop: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
-            <div style={{
-              width: '80px',
-              height: '80px',
-              borderRadius: '24px',
-              background: 'var(--surface)',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              border: '1px solid var(--outline-variant)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
-            }}>
-               <Sparkles size={40} color="var(--primary)" />
-            </div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+             <Sparkles size={48} color="var(--secondary)" className="pulsing-aura" style={{ borderRadius: '50%' }} />
           </div>
-          <h1 className="headline-xl" onClick={() => window.location.reload()} style={{ fontSize: '24px', marginBottom: '8px', cursor: 'pointer', color: 'var(--primary)', fontWeight: 700 }}>INTELLICORE AI</h1>
-          <p className="body-md" style={{ color: 'var(--on-surface-variant)', fontSize: '15px', padding: '0 20px' }}>
+          <h1 className="headline-xl" onClick={() => window.location.reload()} style={{ fontSize: '28px', marginBottom: '8px', cursor: 'pointer', color: 'var(--primary)' }}>INTELLICORE AI</h1>
+          <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>
             Discover the next generation of conversational intelligence and productivity.
           </p>
         </div>
