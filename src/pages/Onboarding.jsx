@@ -27,17 +27,7 @@ const Onboarding = () => {
       overflowY: 'auto',
       backgroundColor: 'var(--background)'
     }}>
-      {/* Background graphic effect */}
-      <div style={{
-        position: 'absolute',
-        top: '-10%',
-        left: '-20%',
-        width: '140%',
-        height: '60%',
-        background: 'radial-gradient(circle, rgba(46,91,255,0.15) 0%, rgba(16,20,21,0) 70%)',
-        zIndex: 0,
-        pointerEvents: 'none'
-      }} />
+      {/* Removed background graphic effect */}
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10, position: 'relative' }}>
@@ -105,28 +95,36 @@ const Onboarding = () => {
         </div>
       </div>
 
-      {/* Center graphic */}
-      <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1 }}>
+      {/* Center premium logo */}
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1, margin: '20px 0' }}>
         <div style={{
-          width: '200px',
-          height: '200px',
+          width: '260px',
+          height: '260px',
           borderRadius: '50%',
-          background: 'linear-gradient(135deg, rgba(46,91,255,0.8), rgba(87,27,193,0.8))',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          boxShadow: '0 0 60px rgba(46,91,255,0.4)',
-          position: 'relative'
+          position: 'relative',
+          padding: '2px',
+          background: 'linear-gradient(135deg, rgba(46,91,255,0.3), rgba(167,42,255,0.3))',
         }}>
            <div style={{
-             position: 'absolute',
              width: '100%',
              height: '100%',
              borderRadius: '50%',
-             border: '1px solid rgba(255,255,255,0.2)',
-             boxSizing: 'border-box'
-           }} className="pulsing-aura" />
-           <Sparkles size={64} color="#ffffff" />
+             overflow: 'hidden',
+             background: '#080a0b',
+             display: 'flex',
+             justifyContent: 'center',
+             alignItems: 'center',
+             border: '1px solid rgba(255,255,255,0.05)'
+           }}>
+             <img 
+               src="/logo.png" 
+               alt="IntelliCore Logo" 
+               style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.05)' }} 
+             />
+           </div>
         </div>
       </div>
 
