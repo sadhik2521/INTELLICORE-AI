@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu, Paperclip, Send, Sparkles, User, MessageSquare, X } from 'lucide-react';
+import { Menu, Paperclip, Send, Sparkles, User, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
 import { useModel } from '../context/ModelContext';
 import BottomNav from '../components/BottomNav';
 import AnimatedBackground from '../components/AnimatedBackground';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
 
 const Chat = () => {
   const { user } = useAuth();
@@ -65,7 +63,6 @@ const Chat = () => {
     const userMsg = { user_id: user.id, message: input, sender: 'user', timestamp: new Date().toISOString() };
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
-    const currentInput = input;
     setInput('');
     setIsTyping(true);
 
@@ -125,7 +122,7 @@ const Chat = () => {
     }}>
       <AnimatedBackground />
       
-      {/* Sidebar History Overlay */}
+      {/* Sidebar History */}
       {showHistory && (
         <div style={{
           position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
@@ -203,11 +200,10 @@ const Chat = () => {
               color: 'var(--on-surface)',
               borderBottomRightRadius: msg.sender === 'user' ? '4px' : '16px',
               borderBottomLeftRadius: msg.sender === 'user' ? '16px' : '4px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+              boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+              whiteSpace: 'pre-wrap'
             }}>
-              <ReactMarkdown remarkPlugins={[remarkGfm]} className="markdown-content">
-                {msg.message || ''}
-              </ReactMarkdown>
+              {msg.message}
             </div>
           </div>
         ))}
