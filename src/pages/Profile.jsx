@@ -154,6 +154,9 @@ const Profile = () => {
           </div>
           <ChevronRight size={20} color="var(--outline)" />
         </div>
+
+
+
       </div>
 
       <BottomNav />
