@@ -21,6 +21,7 @@ const ProtectedRoute = ({ children }) => {
 };
 
 function App() {
+  console.log('🚀 INTELLICORE REACT APP INITIALIZED');
   return (
     <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
       <LanguageProvider>

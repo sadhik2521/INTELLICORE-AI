@@ -40,11 +40,16 @@ const Chat = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Use env variable for deployed backend (Render), fallback to localhost for dev
-  let rawApiUrl = import.meta.env.VITE_API_URL
-    || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-      ? 'http://localhost:3001'
-      : null);
+  // Use env variable for deployed backend (Render)
+  // For mobile apps (Capacitor), we force the Render URL because localhost won't work
+  let rawApiUrl = import.meta.env.VITE_API_URL || 'https://intellicore-ai-ro40.onrender.com';
+        
+  // Only use localhost if specifically running on a web browser at localhost
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    if (!import.meta.env.VITE_API_URL) {
+      rawApiUrl = 'http://localhost:3001';
+    }
+  }
 
   // Remove trailing slash if present
   const API_URL = rawApiUrl ? rawApiUrl.replace(/\/$/, '') : null;
