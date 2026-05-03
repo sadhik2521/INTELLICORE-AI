@@ -104,15 +104,26 @@ const Chat = () => {
 
     if (API_URL) {
       try {
-        await fetch(`${API_URL}/api/chats`, {
+        const response = await fetch(`${API_URL}/api/chats`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...newMessage, model: selectedModel })
         });
-        setTimeout(() => {
-          fetchChats();
-          setIsTyping(false);
-        }, 1500);
+        
+        if (response.ok) {
+          const data = await response.json();
+          if (data.aiResponse) {
+            const aiMsg = { 
+              user_id: user.id, 
+              message: data.aiResponse, 
+              sender: 'ai', 
+              timestamp: new Date().toISOString() 
+            };
+            setMessages(prev => [...prev, aiMsg]);
+            saveLocalChats([...updatedMessages, aiMsg]);
+          }
+        }
+        setIsTyping(false);
         return;
       } catch (e) {
         console.warn('Backend unavailable, using local chat');
