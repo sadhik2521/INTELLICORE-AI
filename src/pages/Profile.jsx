@@ -122,7 +122,8 @@ const Profile = () => {
         <div className="glass-card" style={{ 
           display: 'flex', flexDirection: 'column', gap: '16px',
           padding: '20px', borderRadius: '16px', backgroundColor: 'var(--surface-container)', border: '1px solid var(--surface-variant)',
-          position: 'relative'
+          position: 'relative',
+          zIndex: showModelMenu ? 100 : 1 // Elevate the whole card when menu is open
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ padding: '10px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '12px' }}>
@@ -148,9 +149,10 @@ const Profile = () => {
 
           {showModelMenu && (
             <div className="glass-card" style={{
-              position: 'absolute', top: '100%', left: 0, width: '100%', zIndex: 50,
+              position: 'absolute', top: '100%', left: 0, width: '100%', zIndex: 1000,
               marginTop: '8px', padding: '8px', display: 'flex', flexDirection: 'column', gap: '4px',
-              backgroundColor: 'var(--surface-container-high)', border: '1px solid var(--outline-variant)'
+              backgroundColor: 'var(--surface-container-highest)', border: '1px solid var(--outline-variant)',
+              boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
             }}>
               {models.map(m => (
                 <div 
