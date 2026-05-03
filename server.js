@@ -67,16 +67,13 @@ async function getAIResponse(model, userMessage) {
         model: "gpt-3.5-turbo",
         messages: [{ role: "user", content: userMessage }],
       });
-      console.log('[AI Success] OpenAI responded');
-      return response.choices[0].message.content;
+    return response.choices[0].message.content;
     }
   } catch (error) {
     console.error('[AI ERROR] Detailed error:', error.message);
-    if (error.response) {
-      console.error('[AI ERROR] Status:', error.response.status);
-      console.error('[AI ERROR] Data:', error.response.data);
-    }
-    return `I'm sorry, I encountered an error: ${error.message}`;
+    if (error.status === 401) return "Error: Invalid API Key. Please check your OpenAI/Gemini keys.";
+    if (error.status === 429) return "Error: API Quota exceeded. Please check your billing or limits.";
+    return `AI Error: ${error.message}`;
   }
 }
 
@@ -128,6 +125,16 @@ app.post('/api/chats', async (req, res) => {
     res.json({ success: true, aiResponse: aiText });
   } else {
     res.json({ success: true });
+  }
+});
+
+app.delete('/api/chats/:userId', (req, res) => {
+  try {
+    db.run('DELETE FROM chats WHERE user_id = ?', [req.params.userId]);
+    saveDB();
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to clear history' });
   }
 });
 

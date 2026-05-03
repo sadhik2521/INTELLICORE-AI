@@ -111,6 +111,19 @@ const Chat = () => {
     }, 30);
   };
 
+  const handleClearHistory = async () => {
+    if (!user || !window.confirm('Clear all chat history?')) return;
+    try {
+      const response = await fetch(`${API_URL}/api/chats/${user.id}`, { method: 'DELETE' });
+      if (response.ok) {
+        setMessages([]);
+        setShowHistory(false);
+      }
+    } catch (err) {
+      console.error('Clear error:', err);
+    }
+  };
+
   const historyQueries = Array.isArray(messages) 
     ? Array.from(new Set(messages.filter(m => m.sender === 'user').map(m => m.message))).reverse() 
     : [];
@@ -122,7 +135,7 @@ const Chat = () => {
     }}>
       <AnimatedBackground />
       
-      {/* Sidebar History */}
+      {/* Sidebar History Overlay */}
       {showHistory && (
         <div style={{
           position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
@@ -137,6 +150,18 @@ const Chat = () => {
               <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--primary)' }}>{t('history')}</h3>
               <X size={20} onClick={() => setShowHistory(false)} style={{ cursor: 'pointer', color: 'var(--outline)' }} />
             </div>
+
+            <div 
+              onClick={handleClearHistory}
+              style={{ 
+                display: 'flex', alignItems: 'center', gap: '8px', padding: '12px', 
+                borderRadius: '12px', border: '1px solid #ff6b6b33', color: '#ff6b6b',
+                cursor: 'pointer', fontSize: '14px', backgroundColor: '#ff6b6b0a'
+              }}
+            >
+              <Trash2 size={16} /> {t('clearHistory')}
+            </div>
+
             <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {historyQueries.length > 0 ? historyQueries.map((query, idx) => (
                 <div 
