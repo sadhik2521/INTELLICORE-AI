@@ -28,7 +28,7 @@ const Login = () => {
 
     // If Google populated the form, we bypass standard password validation
     if (googleData) {
-      const res = oauthLogin(googleData);
+      const res = await oauthLogin(googleData);
       if (res.success) {
         navigate('/chat');
       }

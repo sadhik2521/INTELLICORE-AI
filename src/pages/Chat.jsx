@@ -4,7 +4,7 @@ import { Menu, Paperclip, Mic, Send, Copy, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import BottomNav from '../components/BottomNav';
-import AnimatedBackground from '../components/AnimatedBackground';
+// Removed AnimatedBackground import
 
 const Chat = () => {
   const { user } = useAuth();
@@ -150,10 +150,8 @@ const Chat = () => {
     <div style={{
       display: 'flex', flexDirection: 'column', height: '100vh',
       position: 'relative', overflow: 'hidden',
-      background: 'rgba(5, 6, 8, 0.4)',
-      backdropFilter: 'blur(10px)'
+      background: 'transparent',
     }}>
-      <AnimatedBackground />
       {/* Header */}
       <div style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
@@ -252,11 +250,11 @@ const Chat = () => {
           }}>
             <div style={{
               width: '100px', height: '100px', borderRadius: '50%',
-              background: 'linear-gradient(135deg, rgba(46,91,255,0.15), rgba(87,27,193,0.15))',
+              background: 'linear-gradient(135deg, rgba(46,91,255,0.1), rgba(87,27,193,0.1))',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               marginBottom: '20px', position: 'relative',
-              boxShadow: '0 0 40px rgba(46,91,255,0.1)'
-            }} className="pulsing-aura">
+              border: '1px solid rgba(255,255,255,0.05)'
+            }}>
               <Sparkles size={50} color="var(--primary)" style={{ filter: 'drop-shadow(0 0 15px var(--primary))' }} />
             </div>
             <h1 className="headline-lg" style={{
@@ -334,7 +332,7 @@ const Chat = () => {
                   background: 'linear-gradient(135deg, var(--electric-blue), var(--violet))',
                   padding: '20px', borderRadius: '20px', borderTopLeftRadius: '4px',
                   color: '#ffffff', lineHeight: '1.6', position: 'relative'
-                }} className="ai-aura">
+                }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', opacity: 0.9 }}>
                     <Sparkles size={16} />
                     <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '1px' }}>INTELLICORE</span>
@@ -377,8 +375,9 @@ const Chat = () => {
             <div style={{
               background: 'linear-gradient(135deg, var(--electric-blue), var(--violet))',
               padding: '12px 20px', borderRadius: '20px', borderTopLeftRadius: '4px',
-              display: 'flex', gap: '8px', alignItems: 'center'
-            }} className="pulsing-aura">
+              display: 'flex', gap: '8px', alignItems: 'center',
+              opacity: 0.9
+            }}>
               <Sparkles size={16} color="#fff" />
               <span style={{ color: '#fff', fontSize: '14px' }}>{t('processing')}</span>
             </div>

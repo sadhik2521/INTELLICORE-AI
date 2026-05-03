@@ -2,12 +2,26 @@ import React, { useState } from 'react';
 import { useGoogleLogin } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Capacitor } from '@capacitor/core';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
 
 // Used on Login page — directly signs in after Google auth
 export const GoogleLoginButton = ({ setError }) => {
-  const { signup } = useAuth();
+  const { oauthLogin } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+
+  const handleNativeLogin = async () => {
+    setLoading(true);
+    try {
+      const res = await oauthLogin();
+      if (res.success) navigate('/chat');
+      else setError(res.error);
+    } catch (err) {
+      setError("Native Login Failed.");
+    }
+    setLoading(false);
+  };
 
   const googleLogin = useGoogleLogin({
     prompt: 'select_account',
@@ -18,15 +32,9 @@ export const GoogleLoginButton = ({ setError }) => {
           headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
         });
         const userInfo = await userInfoRes.json();
-        const randomPwd = Math.random().toString(36).slice(-8) + "A1";
-        const res = await signup(userInfo.name, userInfo.email, randomPwd, userInfo.picture || null);
-        if (!res.success && res.error === 'Email already exists') {
-          navigate('/chat');
-        } else if (res.success) {
-          navigate('/chat');
-        } else {
-          setError(res.error);
-        }
+        const res = await oauthLogin(userInfo);
+        if (res.success) navigate('/chat');
+        else setError(res.error);
       } catch (err) {
         setError("Failed to fetch Google profile info.");
       }
@@ -38,14 +46,31 @@ export const GoogleLoginButton = ({ setError }) => {
   return (
     <>
       {loading && <Spinner />}
-      <GoogleBtn onClick={googleLogin} />
+      <GoogleBtn onClick={Capacitor.isNativePlatform() ? handleNativeLogin : googleLogin} />
     </>
   );
 };
 
 // Used on Sign Up page — populates form fields with Google data instead of auto-signing up
 export const GoogleSignUpButton = ({ onGoogleData, setError }) => {
+  const { oauthLogin } = useAuth();
   const [loading, setLoading] = useState(false);
+
+  const handleNativeLogin = async () => {
+    setLoading(true);
+    try {
+      const res = await oauthLogin();
+      if (res.success) {
+        // Since native login already has user data, we just navigate
+        window.location.href = '/chat';
+      } else {
+        setError(res.error);
+      }
+    } catch (err) {
+      setError("Native Login Failed.");
+    }
+    setLoading(false);
+  };
 
   const googleLogin = useGoogleLogin({
     prompt: 'select_account',
@@ -56,7 +81,6 @@ export const GoogleSignUpButton = ({ onGoogleData, setError }) => {
           headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
         });
         const userInfo = await userInfoRes.json();
-        // Pass data back to the parent form to populate fields
         onGoogleData({
           name: userInfo.name || '',
           email: userInfo.email || '',
@@ -73,7 +97,7 @@ export const GoogleSignUpButton = ({ onGoogleData, setError }) => {
   return (
     <>
       {loading && <Spinner />}
-      <GoogleBtn onClick={googleLogin} />
+      <GoogleBtn onClick={Capacitor.isNativePlatform() ? handleNativeLogin : googleLogin} />
     </>
   );
 };
