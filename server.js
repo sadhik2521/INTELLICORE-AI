@@ -145,6 +145,16 @@ app.post('/api/chats', (req, res) => {
   }
 });
 
+app.delete('/api/chats/:userId', (req, res) => {
+  try {
+    db.run('DELETE FROM chats WHERE user_id = ?', [req.params.userId]);
+    saveDB();
+    res.json({ success: true, message: 'Chat history cleared' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 const PORT = process.env.PORT || 3001;
 
 // Initialize DB then start server

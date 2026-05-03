@@ -91,6 +91,21 @@ const Chat = () => {
     return "That's an interesting query! I've analyzed your input and I'm ready to provide a comprehensive response. As an advanced AI assistant, I can help you explore this topic further. Would you like me to elaborate on any specific aspect?";
   };
 
+  const handleClearHistory = async () => {
+    try {
+      setMessages([]);
+      setShowHistory(false);
+      if (user) {
+        localStorage.removeItem(`intellicore_chats_${user.id}`);
+      }
+      if (API_URL && user) {
+        await fetch(`${API_URL}/api/chats/${user.id}`, { method: 'DELETE' });
+      }
+    } catch (err) {
+      console.error('Error clearing history:', err);
+    }
+  };
+
   const handleSend = async () => {
     if (!input.trim() || !user) return;
     const newMessage = { user_id: user.id, message: input, sender: 'user', timestamp: new Date().toISOString() };
@@ -455,7 +470,7 @@ const Chat = () => {
 
         <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
           <button 
-            onClick={() => { setMessages([]); setShowHistory(false); }}
+            onClick={handleClearHistory}
             style={{ 
               width: '100%', padding: '12px', borderRadius: '12px',
               backgroundColor: 'rgba(255,68,68,0.1)', color: '#ff4444',
