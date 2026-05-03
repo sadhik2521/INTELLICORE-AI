@@ -23,46 +23,89 @@ const Chat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
-  const API_URL = window.location.hostname === 'localhost' ? 'http://localhost:3001' : `http://${window.location.hostname}:3001`;
+  // Use env variable for deployed backend (Render), fallback to localhost for dev
+  const API_URL = import.meta.env.VITE_API_URL 
+    || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+        ? 'http://localhost:3001' 
+        : null);
+
+  // localStorage helpers for chat persistence
+  const getLocalChats = () => {
+    try { return JSON.parse(localStorage.getItem(`intellicoreChats_${user?.id}`) || '[]'); }
+    catch { return []; }
+  };
+  const saveLocalChats = (msgs) => {
+    localStorage.setItem(`intellicoreChats_${user?.id}`, JSON.stringify(msgs));
+  };
 
   const fetchChats = async () => {
     if (!user) return;
-    try {
-      const res = await fetch(`${API_URL}/api/chats/${user.id}`);
-      const data = await res.json();
-      setMessages(data);
-    } catch (e) {
-      console.error(e);
+    if (API_URL) {
+      try {
+        const res = await fetch(`${API_URL}/api/chats/${user.id}`);
+        const data = await res.json();
+        setMessages(data);
+        return;
+      } catch (e) {
+        console.warn('Backend unavailable, using local chats');
+      }
     }
+    setMessages(getLocalChats());
+  };
+
+  // AI response templates for local fallback
+  const getAIResponse = (userMessage) => {
+    const msg = userMessage.toLowerCase();
+    if (msg.includes('hello') || msg.includes('hi') || msg.includes('hey'))
+      return "Hello! 👋 I'm INTELLICORE, your advanced neural assistant. How can I help you today?";
+    if (msg.includes('code') || msg.includes('program'))
+      return "I'd be happy to help with coding! Please share the specific programming task, language, or concept you'd like assistance with, and I'll provide a detailed solution.";
+    if (msg.includes('explain') || msg.includes('what is'))
+      return "Great question! I'll break this down for you in a clear and comprehensive way. Could you specify the topic you'd like me to explain in more detail?";
+    if (msg.includes('help'))
+      return "Of course! I'm here to assist you. I can help with coding, brainstorming, writing, analysis, and much more. What would you like to work on?";
+    return "That's an interesting query! I've analyzed your input and I'm ready to provide a comprehensive response. As an advanced AI assistant, I can help you explore this topic further. Would you like me to elaborate on any specific aspect?";
   };
 
   const handleSend = async () => {
     if (!input.trim() || !user) return;
-    const newMessage = { user_id: user.id, message: input, sender: 'user' };
-    setMessages(prev => [...prev, newMessage]);
+    const newMessage = { user_id: user.id, message: input, sender: 'user', timestamp: new Date().toISOString() };
+    const updatedMessages = [...messages, newMessage];
+    setMessages(updatedMessages);
     setInput('');
     setIsTyping(true);
 
-    try {
-      await fetch(`${API_URL}/api/chats`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newMessage)
-      });
-      // Poll for AI response or just wait a bit and fetch
-      setTimeout(() => {
-        fetchChats();
-        setIsTyping(false);
-      }, 1500);
-    } catch (e) {
-      console.error(e);
-      setIsTyping(false);
+    if (API_URL) {
+      try {
+        await fetch(`${API_URL}/api/chats`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newMessage)
+        });
+        setTimeout(() => {
+          fetchChats();
+          setIsTyping(false);
+        }, 1500);
+        return;
+      } catch (e) {
+        console.warn('Backend unavailable, using local chat');
+      }
     }
+
+    // Fallback: localStorage + simulated AI response
+    saveLocalChats(updatedMessages);
+    setTimeout(() => {
+      const aiMessage = { user_id: user.id, message: getAIResponse(input), sender: 'ai', timestamp: new Date().toISOString() };
+      const withAI = [...updatedMessages, aiMessage];
+      setMessages(withAI);
+      saveLocalChats(withAI);
+      setIsTyping(false);
+    }, 1500);
   };
 
   return (
-    <div style={{ 
-      display: 'flex', flexDirection: 'column', height: '100vh', 
+    <div style={{
+      display: 'flex', flexDirection: 'column', height: '100vh',
       position: 'relative', overflow: 'hidden',
       background: 'rgba(5, 6, 8, 0.4)',
       backdropFilter: 'blur(10px)'
@@ -76,11 +119,11 @@ const Chat = () => {
         backdropFilter: 'blur(10px)'
       }}>
         <Menu size={24} color="var(--outline)" />
-        <h2 className="headline-lg" onClick={() => { setMessages([]); setInput(''); }} style={{ 
+        <h2 className="headline-lg" onClick={() => { setMessages([]); setInput(''); }} style={{
           background: 'linear-gradient(135deg, #fff 30%, var(--primary) 100%)',
           WebkitBackgroundClip: 'text',
           WebkitTextFillColor: 'transparent',
-          margin: 0, fontSize: '20px', cursor: 'pointer', fontWeight: 700 
+          margin: 0, fontSize: '20px', cursor: 'pointer', fontWeight: 700
         }}>INTELLICORE AI</h2>
         <div style={{
           width: '32px', height: '32px', borderRadius: '50%',
@@ -89,10 +132,10 @@ const Chat = () => {
           backgroundColor: 'rgba(255,255,255,0.1)'
         }}>
           {user?.avatar ? (
-            <img 
-              src={user.avatar} 
-              alt="Avatar" 
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+            <img
+              src={user.avatar}
+              alt="Avatar"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
           ) : (
             <span style={{ color: 'var(--on-surface-variant)', fontSize: '12px', fontWeight: 600 }}>
@@ -112,8 +155,8 @@ const Chat = () => {
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
             height: '100%', textAlign: 'center', padding: '0 24px'
           }}>
-            <div style={{ 
-              width: '100px', height: '100px', borderRadius: '50%', 
+            <div style={{
+              width: '100px', height: '100px', borderRadius: '50%',
               background: 'linear-gradient(135deg, rgba(46,91,255,0.15), rgba(87,27,193,0.15))',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
               marginBottom: '20px', position: 'relative',
@@ -121,7 +164,7 @@ const Chat = () => {
             }} className="pulsing-aura">
               <Sparkles size={50} color="var(--primary)" style={{ filter: 'drop-shadow(0 0 15px var(--primary))' }} />
             </div>
-            <h1 className="headline-lg" style={{ 
+            <h1 className="headline-lg" style={{
               color: '#fff', marginBottom: '12px', fontSize: '26px', fontWeight: 700,
               textShadow: '0 2px 10px rgba(0,0,0,0.5)'
             }}>{t('howCanIHelp')}</h1>
@@ -137,9 +180,9 @@ const Chat = () => {
                 boxShadow: '0 4px 30px rgba(0,0,0,0.3)'
               }}>
                 <Paperclip size={20} color="var(--outline)" style={{ cursor: 'pointer' }} />
-                <input 
-                  type="text" 
-                  placeholder={t('askNexus')} 
+                <input
+                  type="text"
+                  placeholder={t('askNexus')}
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyPress={e => e.key === 'Enter' && handleSend()}
@@ -149,7 +192,7 @@ const Chat = () => {
                     fontFamily: 'Inter'
                   }}
                 />
-                <button 
+                <button
                   onClick={handleSend}
                   style={{
                     background: 'linear-gradient(135deg, var(--electric-blue), var(--violet))',
@@ -162,7 +205,7 @@ const Chat = () => {
                 </button>
               </div>
             </div>
-            
+
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
               {['Write code', 'Explain AI', 'Brainstorm ideas'].map((item) => (
                 <div key={item} onClick={() => setInput(item)} style={{
@@ -187,7 +230,7 @@ const Chat = () => {
                   {msg.message}
                 </div>
                 <div style={{ textAlign: 'right', fontSize: '10px', color: 'var(--outline)', marginTop: '4px' }}>
-                  {new Date(msg.timestamp || Date.now()).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+                  {new Date(msg.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </div>
               </div>
             ) : (
@@ -201,7 +244,7 @@ const Chat = () => {
                     <Sparkles size={16} />
                     <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '1px' }}>INTELLICORE</span>
                   </div>
-                  
+
                   {msg.message.includes('def fibonacci') ? (
                     <>
                       <p style={{ marginBottom: '16px' }}>
@@ -241,8 +284,8 @@ const Chat = () => {
               padding: '12px 20px', borderRadius: '20px', borderTopLeftRadius: '4px',
               display: 'flex', gap: '8px', alignItems: 'center'
             }} className="pulsing-aura">
-               <Sparkles size={16} color="#fff" />
-               <span style={{ color: '#fff', fontSize: '14px' }}>{t('processing')}</span>
+              <Sparkles size={16} color="#fff" />
+              <span style={{ color: '#fff', fontSize: '14px' }}>{t('processing')}</span>
             </div>
           </div>
         )}
@@ -259,9 +302,9 @@ const Chat = () => {
             borderRadius: '24px', backgroundColor: 'rgba(39, 42, 44, 0.8)', border: '1px solid rgba(255,255,255,0.05)'
           }}>
             <Paperclip size={20} color="var(--outline)" style={{ cursor: 'pointer' }} />
-            <input 
-              type="text" 
-              placeholder={t('askNexus')} 
+            <input
+              type="text"
+              placeholder={t('askNexus')}
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyPress={e => e.key === 'Enter' && handleSend()}
@@ -272,7 +315,7 @@ const Chat = () => {
               }}
             />
             <Mic size={20} color="var(--outline)" style={{ cursor: 'pointer' }} />
-            <button 
+            <button
               onClick={handleSend}
               style={{
                 background: 'linear-gradient(135deg, var(--electric-blue), var(--violet))',

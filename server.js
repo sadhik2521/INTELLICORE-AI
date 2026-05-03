@@ -30,7 +30,7 @@ db.serialize(() => {
     sender TEXT,
     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
-  
+
   // Dummy user for testing
   db.run(`INSERT OR IGNORE INTO users (email, password, name) VALUES ('alex.chen@intellicore.ai', 'password123', 'Alex Chen')`);
 });
@@ -49,7 +49,7 @@ app.post('/api/login', (req, res) => {
 
 app.post('/api/signup', (req, res) => {
   const { name, email, password } = req.body;
-  db.run('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [name, email, password], function(err) {
+  db.run('INSERT INTO users (name, email, password) VALUES (?, ?, ?)', [name, email, password], function (err) {
     if (err) {
       if (err.message.includes('UNIQUE')) {
         return res.status(400).json({ error: 'Email already exists' });
@@ -69,14 +69,14 @@ app.get('/api/chats/:userId', (req, res) => {
 
 app.post('/api/chats', (req, res) => {
   const { userId, message, sender } = req.body;
-  db.run('INSERT INTO chats (user_id, message, sender) VALUES (?, ?, ?)', [userId, message, sender], function(err) {
+  db.run('INSERT INTO chats (user_id, message, sender) VALUES (?, ?, ?)', [userId, message, sender], function (err) {
     if (err) return res.status(500).json({ error: err.message });
-    
+
     // Simulate AI response
     if (sender === 'user') {
       setTimeout(() => {
         const aiResponse = "Certainly! Here is a clean and efficient way to generate the Fibonacci sequence using iteration in Python. This approach is more memory-efficient than recursion for larger values of N.";
-        db.run('INSERT INTO chats (user_id, message, sender) VALUES (?, ?, ?)', [userId, aiResponse, 'ai'], function(err2) {
+        db.run('INSERT INTO chats (user_id, message, sender) VALUES (?, ?, ?)', [userId, aiResponse, 'ai'], function (err2) {
           if (err2) console.error(err2);
         });
       }, 1000);
