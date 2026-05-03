@@ -24,10 +24,17 @@ const Chat = () => {
   }, [messages, isTyping]);
 
   // Use env variable for deployed backend (Render), fallback to localhost for dev
-  const API_URL = import.meta.env.VITE_API_URL 
+  let rawApiUrl = import.meta.env.VITE_API_URL 
     || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
         ? 'http://localhost:3001' 
         : null);
+        
+  // Remove trailing slash if present
+  const API_URL = rawApiUrl ? rawApiUrl.replace(/\/$/, '') : null;
+
+  useEffect(() => {
+    if (API_URL) console.log('🚀 INTELLICORE CHAT API URL:', API_URL);
+  }, [API_URL]);
 
   // localStorage helpers for chat persistence
   const getLocalChats = () => {
