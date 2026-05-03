@@ -52,22 +52,31 @@ function saveDB() {
 
 // AI Response Logic
 async function getAIResponse(model, userMessage) {
+  console.log(`[AI Request] Model: ${model}, Message: ${userMessage}`);
   try {
     if (model === 'gemini') {
+      console.log('Contacting Gemini API...');
       const geminiModel = genAI.getGenerativeModel({ model: "gemini-pro" });
       const result = await geminiModel.generateContent(userMessage);
-      return result.response.text();
+      const text = result.response.text();
+      console.log('[AI Success] Gemini responded');
+      return text;
     } else {
-      // Default to GPT-3.5 or GPT-4
+      console.log('Contacting OpenAI API...');
       const response = await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
         messages: [{ role: "user", content: userMessage }],
       });
+      console.log('[AI Success] OpenAI responded');
       return response.choices[0].message.content;
     }
   } catch (error) {
-    console.error('AI Error:', error);
-    return "I'm sorry, I encountered an error connecting to the neural network. Please try again.";
+    console.error('[AI ERROR] Detailed error:', error.message);
+    if (error.response) {
+      console.error('[AI ERROR] Status:', error.response.status);
+      console.error('[AI ERROR] Data:', error.response.data);
+    }
+    return `I'm sorry, I encountered an error: ${error.message}`;
   }
 }
 
