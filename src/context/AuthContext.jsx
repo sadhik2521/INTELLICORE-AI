@@ -1,4 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { GoogleAuth } from '@codetrix-studio/capacitor-google-auth';
+import { Capacitor } from '@capacitor/core';
 
 const AuthContext = createContext();
 
@@ -12,21 +14,19 @@ export const AuthProvider = ({ children }) => {
       setUser(JSON.parse(storedUser));
     }
     setLoading(false);
+
+    // Initialize Google Auth for mobile
+    if (Capacitor.isNativePlatform()) {
+      GoogleAuth.initialize();
+    }
   }, []);
 
-  // Use env variable for deployed backend (Render)
-  // For mobile apps (Capacitor), we force the Render URL because localhost won't work
-  let rawApiUrl = import.meta.env.VITE_API_URL || 'https://intellicore-ai-ro40.onrender.com';
-        
-  // Only use localhost if specifically running on a web browser at localhost
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    if (!import.meta.env.VITE_API_URL) {
-      rawApiUrl = 'http://localhost:3001';
-    }
-  }
-        
-  // Remove trailing slash if present
-  const API_URL = rawApiUrl ? rawApiUrl.replace(/\/$/, '') : null;
+  // Force production URL for Capacitor/Mobile
+  const API_URL = 'https://intellicore-ai-ro40.onrender.com';
+  
+  useEffect(() => {
+    console.log('📱 MOBILE APP API TARGET:', API_URL);
+  }, []);
   
   useEffect(() => {
     if (API_URL) console.log('🚀 INTELLICORE API URL:', API_URL);
@@ -80,17 +80,38 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('intellicoreUser', JSON.stringify(updated));
   };
 
-  const oauthLogin = (googleData) => {
-    const userData = {
-      id: `google-${googleData.email}`,
-      name: googleData.name,
-      email: googleData.email,
-      avatar: googleData.picture || null,
-      authProvider: 'google'
-    };
-    setUser(userData);
-    localStorage.setItem('intellicoreUser', JSON.stringify(userData));
-    return { success: true };
+  const oauthLogin = async (googleData) => {
+    try {
+      let userData;
+      
+      // If native mobile, the data comes from Capacitor plugin
+      if (Capacitor.isNativePlatform()) {
+        const nativeUser = await GoogleAuth.signIn();
+        userData = {
+          id: `google-${nativeUser.email}`,
+          name: nativeUser.name,
+          email: nativeUser.email,
+          avatar: nativeUser.imageUrl || null,
+          authProvider: 'google'
+        };
+      } else {
+        // Standard web data from @react-oauth/google
+        userData = {
+          id: `google-${googleData.email}`,
+          name: googleData.name,
+          email: googleData.email,
+          avatar: googleData.picture || null,
+          authProvider: 'google'
+        };
+      }
+
+      setUser(userData);
+      localStorage.setItem('intellicoreUser', JSON.stringify(userData));
+      return { success: true };
+    } catch (error) {
+      console.error('Google Auth Error:', error);
+      return { success: false, error: error.message };
+    }
   };
 
   const logout = () => {

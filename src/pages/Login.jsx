@@ -4,7 +4,6 @@ import { ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { GoogleSignUpButton } from '../components/RealOAuthButtons';
-import AnimatedBackground from '../components/AnimatedBackground';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -50,10 +49,8 @@ const Login = () => {
       height: '100vh',
       padding: '32px 24px',
       position: 'relative',
-      background: 'rgba(8, 10, 11, 0.55)',
-      backdropFilter: 'blur(2px)',
+      backgroundColor: 'transparent',
     }}>
-      <AnimatedBackground />
 
       <div style={{ textAlign: 'center', marginTop: '16px', marginBottom: '24px' }}>
         <h1 className="headline-xl" onClick={() => navigate('/')} style={{ color: 'var(--primary)', marginBottom: '8px', cursor: 'pointer' }}>INTELLICORE AI</h1>
@@ -109,7 +106,7 @@ const Login = () => {
               placeholder="Email"
               style={{
                 width: '100%', border: 'none', background: 'transparent', 
-                color: '#101415', fontSize: '16px', outline: 'none',
+                color: 'var(--on-surface)', fontSize: '16px', outline: 'none',
                 fontFamily: 'Inter'
               }}
               required
@@ -134,7 +131,7 @@ const Login = () => {
               placeholder="Password"
               style={{
                 width: '100%', border: 'none', background: 'transparent', 
-                color: '#101415', fontSize: '16px', outline: 'none',
+                color: 'var(--on-surface)', fontSize: '16px', outline: 'none',
                 fontFamily: 'Inter', letterSpacing: password ? '2px' : 'normal'
               }}
               required

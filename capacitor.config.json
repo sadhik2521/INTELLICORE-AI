@@ -1,5 +1,13 @@
 {
   "appId": "ai.intellicore.app",
   "appName": "INTELLICORE AI",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "GoogleAuth": {
+      "scopes": ["profile", "email"],
+      "androidClientId": "1003429583952-chm00nfdknqnp4l9hgdg6pbijdei4aib.apps.googleusercontent.com",
+      "serverClientId": "1003429583952-60kiid542r4k0m590d6qovj4dkh27qpe.apps.googleusercontent.com",
+      "forceCodeForRefreshToken": true
+    }
+  }
 }

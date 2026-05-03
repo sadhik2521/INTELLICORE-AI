@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Camera, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { GoogleSignUpButton } from '../components/RealOAuthButtons';
-import AnimatedBackground from '../components/AnimatedBackground';
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -86,13 +85,17 @@ const SignUp = () => {
 
   const inputStyle = {
     width: '100%', border: 'none', background: 'transparent',
-    color: '#101415', fontSize: '16px', outline: 'none', fontFamily: 'Inter'
+    color: 'var(--on-surface)', fontSize: '16px', outline: 'none', fontFamily: 'Inter'
   };
-  const inputWrapStyle = { backgroundColor: '#ffffff', borderRadius: '4px', padding: '12px' };
+  const inputWrapStyle = { 
+    backgroundColor: 'var(--surface)', 
+    borderRadius: '12px', 
+    padding: '12px',
+    border: '1px solid var(--outline-variant)' 
+  };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', padding: '32px 24px', position: 'relative', overflowY: 'auto', background: 'rgba(8, 10, 11, 0.55)', backdropFilter: 'blur(2px)' }}>
-      <AnimatedBackground />
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', padding: '32px 24px', position: 'relative', overflowY: 'auto', backgroundColor: 'transparent' }}>
 
       <div style={{ textAlign: 'center', marginTop: '16px', marginBottom: '24px' }}>
         <h1 className="headline-xl" onClick={() => navigate('/')} style={{ color: 'var(--primary)', marginBottom: '8px', cursor: 'pointer' }}>INTELLICORE AI</h1>

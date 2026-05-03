@@ -150,10 +150,8 @@ const Chat = () => {
     <div style={{
       display: 'flex', flexDirection: 'column', height: '100vh',
       position: 'relative', overflow: 'hidden',
-      background: 'rgba(5, 6, 8, 0.4)',
-      backdropFilter: 'blur(10px)'
+      backgroundColor: 'transparent'
     }}>
-      <AnimatedBackground />
       {/* Header */}
       <div style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',

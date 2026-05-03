@@ -27,17 +27,6 @@ const Onboarding = () => {
       overflowY: 'auto',
       backgroundColor: 'var(--background)'
     }}>
-      {/* Background graphic effect */}
-      <div style={{
-        position: 'absolute',
-        top: '-10%',
-        left: '-20%',
-        width: '140%',
-        height: '60%',
-        background: 'radial-gradient(circle, rgba(46,91,255,0.15) 0%, rgba(16,20,21,0) 70%)',
-        zIndex: 0,
-        pointerEvents: 'none'
-      }} />
 
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10, position: 'relative' }}>
@@ -108,25 +97,17 @@ const Onboarding = () => {
       {/* Center graphic */}
       <div style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1 }}>
         <div style={{
-          width: '200px',
-          height: '200px',
-          borderRadius: '50%',
-          background: 'linear-gradient(135deg, rgba(46,91,255,0.8), rgba(87,27,193,0.8))',
+          width: '120px',
+          height: '120px',
+          borderRadius: '32px',
+          background: 'var(--surface)',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
-          boxShadow: '0 0 60px rgba(46,91,255,0.4)',
+          border: '1px solid var(--outline-variant)',
           position: 'relative'
         }}>
-           <div style={{
-             position: 'absolute',
-             width: '100%',
-             height: '100%',
-             borderRadius: '50%',
-             border: '1px solid rgba(255,255,255,0.2)',
-             boxSizing: 'border-box'
-           }} className="pulsing-aura" />
-           <Sparkles size={64} color="#ffffff" />
+           <Sparkles size={48} color="var(--primary)" />
         </div>
       </div>
 
