@@ -5,23 +5,17 @@ import { useLanguage } from '../context/LanguageContext';
 import BottomNav from '../components/BottomNav';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
-import { useModel } from '../context/ModelContext';
 
 const Profile = () => {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const { selectedModel, setSelectedModel, models } = useModel();
   const { t } = useLanguage();
   const navigate = useNavigate();
-
-  const [showModelMenu, setShowModelMenu] = React.useState(false);
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
-
-  const currentModelName = models.find(m => m.id === selectedModel)?.name || 'Select Model';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', position: 'relative', overflow: 'hidden', backgroundColor: 'var(--background)' }}>
@@ -121,9 +115,7 @@ const Profile = () => {
         {/* AI Model Selection */}
         <div className="glass-card" style={{ 
           display: 'flex', flexDirection: 'column', gap: '16px',
-          padding: '20px', borderRadius: '16px', backgroundColor: 'var(--surface-container)', border: '1px solid var(--surface-variant)',
-          position: 'relative',
-          zIndex: showModelMenu ? 100 : 1 // Elevate the whole card when menu is open
+          padding: '20px', borderRadius: '16px', backgroundColor: 'var(--surface-container)', border: '1px solid var(--surface-variant)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ padding: '10px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '12px' }}>
@@ -131,46 +123,20 @@ const Profile = () => {
             </div>
             <div>
               <div style={{ fontSize: '16px', fontWeight: 500, color: 'var(--on-surface)' }}>{t('aiModelSelection')}</div>
-              <div style={{ fontSize: '12px', color: 'var(--on-surface-variant)' }}>{currentModelName}</div>
+              <div style={{ fontSize: '12px', color: 'var(--on-surface-variant)' }}>IntelliCore-4 Turbo (Stable)</div>
             </div>
           </div>
-          
-          <div 
-            onClick={() => setShowModelMenu(!showModelMenu)}
-            style={{ 
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              padding: '12px 16px', border: '1px solid var(--electric-blue)', borderRadius: '8px',
-              backgroundColor: 'rgba(46,91,255,0.05)', cursor: 'pointer'
-            }}
-          >
-            <span style={{ fontSize: '14px', color: 'var(--on-surface)' }}>{currentModelName}</span>
-            <ChevronDown size={16} color="var(--outline)" style={{ transform: showModelMenu ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+          <div style={{ 
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            padding: '12px 16px', border: '1px solid var(--electric-blue)', borderRadius: '8px',
+            backgroundColor: 'rgba(46,91,255,0.05)'
+          }}>
+            <span style={{ fontSize: '14px', color: 'var(--on-surface)' }}>IntelliCore-4 Turbo (Stable)</span>
+            <ChevronDown size={16} color="var(--outline)" />
           </div>
-
-          {showModelMenu && (
-            <div className="glass-card" style={{
-              position: 'absolute', top: '100%', left: 0, width: '100%', zIndex: 1000,
-              marginTop: '8px', padding: '8px', display: 'flex', flexDirection: 'column', gap: '4px',
-              backgroundColor: 'var(--surface-container-highest)', border: '1px solid var(--outline-variant)',
-              boxShadow: '0 10px 40px rgba(0,0,0,0.5)'
-            }}>
-              {models.map(m => (
-                <div 
-                  key={m.id}
-                  onClick={() => { setSelectedModel(m.id); setShowModelMenu(false); }}
-                  style={{ 
-                    padding: '12px', borderRadius: '6px', cursor: 'pointer',
-                    backgroundColor: selectedModel === m.id ? 'rgba(46,91,255,0.15)' : 'transparent',
-                    color: selectedModel === m.id ? 'var(--primary)' : 'var(--on-surface)',
-                    fontSize: '14px'
-                  }}
-                >
-                  {m.name} <span style={{ fontSize: '10px', opacity: 0.5 }}>({m.provider})</span>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
+
+
 
         {/* Log Out */}
         <div className="glass-card" onClick={handleLogout} style={{ 
@@ -188,7 +154,6 @@ const Profile = () => {
           </div>
           <ChevronRight size={20} color="var(--outline)" />
         </div>
-
       </div>
 
       <BottomNav />

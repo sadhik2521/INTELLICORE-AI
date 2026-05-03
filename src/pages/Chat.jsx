@@ -1,34 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu, Paperclip, Send, Sparkles, User, X } from 'lucide-react';
+import { Menu, Paperclip, Mic, Send, Copy, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import { useTheme } from '../context/ThemeContext';
-import { useModel } from '../context/ModelContext';
 import BottomNav from '../components/BottomNav';
 import AnimatedBackground from '../components/AnimatedBackground';
 
 const Chat = () => {
   const { user } = useAuth();
   const { t } = useLanguage();
-  const { theme } = useTheme();
-  const { selectedModel } = useModel();
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const messagesEndRef = useRef(null);
+  const menuRef = useRef(null);
   const historyRef = useRef(null);
-  const intervalRef = useRef(null);
-
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
   useEffect(() => {
     fetchChats();
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
   }, []);
 
   useEffect(() => {
@@ -37,6 +29,9 @@ const Chat = () => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowProfileMenu(false);
+      }
       if (historyRef.current && !historyRef.current.contains(event.target) && !event.target.closest('.menu-trigger')) {
         setShowHistory(false);
       }
@@ -45,234 +40,436 @@ const Chat = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Use env variable for deployed backend (Render), fallback to localhost for dev
+  let rawApiUrl = import.meta.env.VITE_API_URL
+    || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+      ? 'http://localhost:3001'
+      : null);
+
+  // Remove trailing slash if present
+  const API_URL = rawApiUrl ? rawApiUrl.replace(/\/$/, '') : null;
+
+  useEffect(() => {
+    if (API_URL) console.log('🚀 INTELLICORE CHAT API URL:', API_URL);
+  }, [API_URL]);
+
+  // localStorage helpers for chat persistence
+  const getLocalChats = () => {
+    try { return JSON.parse(localStorage.getItem(`intellicoreChats_${user?.id}`) || '[]'); }
+    catch { return []; }
+  };
+  const saveLocalChats = (msgs) => {
+    localStorage.setItem(`intellicoreChats_${user?.id}`, JSON.stringify(msgs));
+  };
+
   const fetchChats = async () => {
-    if (!user?.id) return;
-    try {
-      const response = await fetch(`${API_URL}/api/chats/${user.id}`);
-      if (response.ok) {
-        const data = await response.json();
-        if (Array.isArray(data)) setMessages(data);
+    if (!user) return;
+    if (API_URL) {
+      try {
+        const res = await fetch(`${API_URL}/api/chats/${user.id}`);
+        const data = await res.json();
+        setMessages(data);
+        return;
+      } catch (e) {
+        console.warn('Backend unavailable, using local chats');
       }
-    } catch (err) {
-      console.error('Fetch error:', err);
     }
+    setMessages(getLocalChats());
+  };
+
+  // AI response templates for local fallback
+  const getAIResponse = (userMessage) => {
+    const msg = userMessage.toLowerCase();
+    if (msg.includes('hello') || msg.includes('hi') || msg.includes('hey'))
+      return "Hello! 👋 I'm INTELLICORE, your advanced neural assistant. How can I help you today?";
+    if (msg.includes('code') || msg.includes('program'))
+      return "I'd be happy to help with coding! Please share the specific programming task, language, or concept you'd like assistance with, and I'll provide a detailed solution.";
+    if (msg.includes('explain') || msg.includes('what is'))
+      return "Great question! I'll break this down for you in a clear and comprehensive way. Could you specify the topic you'd like me to explain in more detail?";
+    if (msg.includes('help'))
+      return "Of course! I'm here to assist you. I can help with coding, brainstorming, writing, analysis, and much more. What would you like to work on?";
+    return "That's an interesting query! I've analyzed your input and I'm ready to provide a comprehensive response. As an advanced AI assistant, I can help you explore this topic further. Would you like me to elaborate on any specific aspect?";
   };
 
   const handleSend = async () => {
     if (!input.trim() || !user) return;
-    const userMsg = { user_id: user.id, message: input, sender: 'user', timestamp: new Date().toISOString() };
-    const updatedMessages = [...messages, userMsg];
+    const newMessage = { user_id: user.id, message: input, sender: 'user', timestamp: new Date().toISOString() };
+    const updatedMessages = [...messages, newMessage];
     setMessages(updatedMessages);
     setInput('');
     setIsTyping(true);
 
-    try {
-      const response = await fetch(`${API_URL}/api/chats`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...userMsg, model: selectedModel })
-      });
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.aiResponse) {
-          simulateStreaming(data.aiResponse, updatedMessages);
-        } else {
+    if (API_URL) {
+      try {
+        await fetch(`${API_URL}/api/chats`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newMessage)
+        });
+        setTimeout(() => {
+          fetchChats();
           setIsTyping(false);
-        }
-      } else {
-        setIsTyping(false);
+        }, 1500);
+        return;
+      } catch (e) {
+        console.warn('Backend unavailable, using local chat');
       }
-    } catch (err) {
-      console.error('Send error:', err);
+    }
+
+    // Fallback: localStorage + simulated AI response
+    saveLocalChats(updatedMessages);
+    setTimeout(() => {
+      const aiMessage = { user_id: user.id, message: getAIResponse(input), sender: 'ai', timestamp: new Date().toISOString() };
+      const withAI = [...updatedMessages, aiMessage];
+      setMessages(withAI);
+      saveLocalChats(withAI);
       setIsTyping(false);
-    }
+    }, 1500);
   };
-
-  const simulateStreaming = (fullText, baseMessages) => {
-    let currentText = '';
-    const words = fullText.split(' ');
-    let i = 0;
-    
-    const aiMsgId = Date.now();
-    setMessages([...baseMessages, { id: aiMsgId, message: '', sender: 'ai' }]);
-    setIsTyping(false);
-
-    if (intervalRef.current) clearInterval(intervalRef.current);
-    
-    intervalRef.current = setInterval(() => {
-      if (i < words.length) {
-        currentText += (i === 0 ? '' : ' ') + words[i];
-        setMessages(prev => prev.map(m => m.id === aiMsgId ? { ...m, message: currentText } : m));
-        i++;
-      } else {
-        clearInterval(intervalRef.current);
-      }
-    }, 30);
-  };
-
-  const handleClearHistory = async () => {
-    if (!user || !window.confirm('Clear all chat history?')) return;
-    try {
-      const response = await fetch(`${API_URL}/api/chats/${user.id}`, { method: 'DELETE' });
-      if (response.ok) {
-        setMessages([]);
-        setShowHistory(false);
-      }
-    } catch (err) {
-      console.error('Clear error:', err);
-    }
-  };
-
-  const historyQueries = Array.isArray(messages) 
-    ? Array.from(new Set(messages.filter(m => m.sender === 'user').map(m => m.message))).reverse() 
-    : [];
 
   return (
     <div style={{
-      display: 'flex', flexDirection: 'column', height: '100vh', position: 'relative',
-      overflow: 'hidden', backgroundColor: 'var(--background)'
+      display: 'flex', flexDirection: 'column', height: '100vh',
+      position: 'relative', overflow: 'hidden',
+      background: 'rgba(5, 6, 8, 0.4)',
+      backdropFilter: 'blur(10px)'
     }}>
       <AnimatedBackground />
-      
-      {/* Sidebar History Overlay */}
-      {showHistory && (
-        <div style={{
-          position: 'absolute', top: 0, left: 0, width: '100%', height: '100%',
-          backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 100, backdropFilter: 'blur(4px)'
-        }}>
-          <div ref={historyRef} style={{
-            width: '280px', height: '100%', backgroundColor: 'var(--surface-container-low)',
-            padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px',
-            boxShadow: '4px 0 20px rgba(0,0,0,0.3)', animation: 'slideIn 0.3s ease-out'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, fontSize: '18px', color: 'var(--primary)' }}>{t('history')}</h3>
-              <X size={20} onClick={() => setShowHistory(false)} style={{ cursor: 'pointer', color: 'var(--outline)' }} />
-            </div>
-
-            <div 
-              onClick={handleClearHistory}
-              style={{ 
-                display: 'flex', alignItems: 'center', gap: '8px', padding: '12px', 
-                borderRadius: '12px', border: '1px solid #ff6b6b33', color: '#ff6b6b',
-                cursor: 'pointer', fontSize: '14px', backgroundColor: '#ff6b6b0a'
-              }}
-            >
-              <Trash2 size={16} /> {t('clearHistory')}
-            </div>
-
-            <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {historyQueries.length > 0 ? historyQueries.map((query, idx) => (
-                <div 
-                  key={idx}
-                  onClick={() => { setInput(query); setShowHistory(false); }}
-                  style={{ 
-                    padding: '12px', borderRadius: '12px', backgroundColor: 'var(--surface-container-high)',
-                    fontSize: '14px', cursor: 'pointer', border: '1px solid var(--outline-variant)',
-                    whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'var(--on-surface)'
-                  }}
-                >
-                  {query}
-                </div>
-              )) : <div style={{ textAlign: 'center', color: 'var(--outline)', marginTop: '40px' }}>No history yet</div>}
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* Header */}
       <div style={{
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '16px 20px', borderBottom: '1px solid var(--surface-variant)',
-        backgroundColor: 'var(--surface-container-lowest)', zIndex: 10,
+        padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)',
+        backgroundColor: 'rgba(5, 6, 8, 0.6)', zIndex: 10,
         backdropFilter: 'blur(10px)'
       }}>
-        <div className="menu-trigger" onClick={() => setShowHistory(!showHistory)} style={{ cursor: 'pointer' }}>
+        <div className="menu-trigger" onClick={() => setShowHistory(!showHistory)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
           <Menu size={24} color="var(--outline)" />
         </div>
-        <h2 style={{ 
+        <h2 className="headline-lg" onClick={() => { setMessages([]); setInput(''); }} style={{
           background: 'linear-gradient(135deg, var(--on-surface) 30%, var(--primary) 100%)',
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          margin: 0, fontSize: '18px', fontWeight: 700 
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          margin: 0, fontSize: '20px', cursor: 'pointer', fontWeight: 700
         }}>INTELLICORE AI</h2>
-        <div 
-          onClick={() => navigate('/profile')}
-          style={{ width: '32px', height: '32px', borderRadius: '50%', border: '1px solid var(--primary)', cursor: 'pointer', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        <div
+          onClick={() => setShowProfileMenu(!showProfileMenu)}
+          style={{
+            width: '32px', height: '32px', borderRadius: '50%',
+            overflow: 'hidden', border: '1px solid var(--electric-blue)',
+            display: 'flex', justifyContent: 'center', alignItems: 'center',
+            backgroundColor: 'rgba(255,255,255,0.1)', cursor: 'pointer',
+            position: 'relative'
+          }}
         >
-          {user?.avatar ? <img src={user.avatar} style={{width:'100%', height:'100%'}} /> : <User size={20} style={{color:'var(--outline)'}} />}
+          {user?.avatar ? (
+            <img
+              src={user.avatar}
+              alt="Avatar"
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+          ) : (
+            <span style={{ color: 'var(--on-surface-variant)', fontSize: '12px', fontWeight: 600 }}>
+              {user?.name?.[0]?.toUpperCase() || 'U'}
+            </span>
+          )}
         </div>
+
+        {/* Profile Dropdown Menu */}
+        {showProfileMenu && (
+          <div ref={menuRef} className="glass-card" style={{
+            position: 'absolute', top: '70px', right: '20px', width: '220px',
+            padding: '20px', zIndex: 100, borderRadius: '16px',
+            backgroundColor: 'rgba(20, 22, 25, 0.9)', border: '1px solid rgba(255,255,255,0.1)',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.5)', animation: 'fadeIn 0.2s ease-out'
+          }}>
+            <div style={{ marginBottom: '16px', textAlign: 'center' }}>
+              <div style={{
+                width: '60px', height: '60px', borderRadius: '50%', margin: '0 auto 12px',
+                border: '2px solid var(--primary)', padding: '2px'
+              }}>
+                {user?.avatar ? (
+                  <img src={user.avatar} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'var(--surface-container-high)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '20px', fontWeight: 700 }}>
+                    {user?.name?.[0]?.toUpperCase()}
+                  </div>
+                )}
+              </div>
+              <h3 style={{ color: '#fff', fontSize: '16px', margin: '0 0 4px 0' }}>{user?.name}</h3>
+              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', margin: 0 }}>{user?.email}</p>
+            </div>
+
+            <div style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.05)', margin: '12px 0' }} />
+
+            <button
+              onClick={() => navigate('/profile')}
+              style={{ width: '100%', padding: '10px', background: 'transparent', border: 'none', color: '#fff', textAlign: 'left', cursor: 'pointer', fontSize: '14px', borderRadius: '8px', transition: 'background 0.2s' }}
+              onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.05)'}
+              onMouseOut={(e) => e.target.style.background = 'transparent'}
+            >
+              View Profile
+            </button>
+            <button
+              onClick={() => { localStorage.removeItem('intellicoreUser'); window.location.reload(); }}
+              style={{ width: '100%', padding: '10px', background: 'transparent', border: 'none', color: '#ff4444', textAlign: 'left', cursor: 'pointer', fontSize: '14px', borderRadius: '8px', transition: 'background 0.2s' }}
+              onMouseOver={(e) => e.target.style.background = 'rgba(255,68,68,0.05)'}
+              onMouseOut={(e) => e.target.style.background = 'transparent'}
+            >
+              Sign Out
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Messages */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        {Array.isArray(messages) && messages.map((msg, index) => (
-          <div key={index} style={{ 
-            display: 'flex', gap: '12px', 
-            flexDirection: msg.sender === 'user' ? 'row-reverse' : 'row',
-            alignItems: 'flex-start'
+      {/* Chat Area */}
+      <div style={{
+        flex: 1, overflowY: 'auto', padding: '20px', paddingBottom: messages.length === 0 ? '0' : '140px',
+        display: 'flex', flexDirection: 'column', gap: '24px', position: 'relative'
+      }}>
+        {messages.length === 0 ? (
+          <div style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            height: '100%', textAlign: 'center', padding: '0 24px'
           }}>
             <div style={{
-              width: '32px', height: '32px', borderRadius: '8px', 
-              backgroundColor: msg.sender === 'user' ? 'var(--primary)' : 'var(--secondary)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
-            }}>
-              {msg.sender === 'user' ? <User size={18} color="#fff" /> : <Sparkles size={18} color="#fff" />}
+              width: '100px', height: '100px', borderRadius: '50%',
+              background: 'linear-gradient(135deg, rgba(46,91,255,0.15), rgba(87,27,193,0.15))',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              marginBottom: '20px', position: 'relative',
+              boxShadow: '0 0 40px rgba(46,91,255,0.1)'
+            }} className="pulsing-aura">
+              <Sparkles size={50} color="var(--primary)" style={{ filter: 'drop-shadow(0 0 15px var(--primary))' }} />
             </div>
-            <div style={{
-              maxWidth: '80%', padding: '12px 16px', borderRadius: '16px',
-              backgroundColor: msg.sender === 'user' ? 'var(--primary-container)' : 'var(--surface-container-high)',
-              color: 'var(--on-surface)',
-              borderBottomRightRadius: msg.sender === 'user' ? '4px' : '16px',
-              borderBottomLeftRadius: msg.sender === 'user' ? '16px' : '4px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-              whiteSpace: 'pre-wrap'
-            }}>
-              {msg.message}
+            <h1 className="headline-lg" style={{
+              color: '#fff', marginBottom: '12px', fontSize: '26px', fontWeight: 700,
+              textShadow: '0 2px 10px rgba(0,0,0,0.5)'
+            }}>{t('how Can I Help')}</h1>
+            <p className="body-md" style={{ color: 'rgba(255,255,255,0.6)', maxWidth: '300px', lineHeight: '1.6', marginBottom: '32px' }}>
+              I'm INTELLICORE, your advanced neural assistant. Ask me anything to get started.
+            </p>
+
+            {/* Centered Input Bar */}
+            <div style={{ width: '100%', maxWidth: '400px', marginBottom: '32px' }}>
+              <div className="glass-card" style={{
+                display: 'flex', alignItems: 'center', padding: '8px 16px', gap: '12px',
+                borderRadius: '24px', backgroundColor: 'rgba(39, 42, 44, 0.8)', border: '1px solid rgba(255,255,255,0.1)',
+                boxShadow: '0 4px 30px rgba(0,0,0,0.3)'
+              }}>
+                <Paperclip size={20} color="var(--outline)" style={{ cursor: 'pointer' }} />
+                <input
+                  type="text"
+                  placeholder={t('askNexus')}
+                  value={input}
+                  onChange={e => setInput(e.target.value)}
+                  onKeyPress={e => e.key === 'Enter' && handleSend()}
+                  style={{
+                    flex: 1, background: 'transparent', border: 'none', color: '#fff',
+                    fontSize: '16px', outline: 'none', padding: '12px 0',
+                    fontFamily: 'Inter'
+                  }}
+                />
+                <button
+                  onClick={handleSend}
+                  style={{
+                    background: 'linear-gradient(135deg, var(--electric-blue), var(--violet))',
+                    border: 'none', borderRadius: '12px', width: '40px', height: '40px',
+                    display: 'flex', justifyContent: 'center', alignItems: 'center',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Send size={18} color="#fff" />
+                </button>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
+              {['Write code', 'Explain AI', 'Brainstorm ideas'].map((item) => (
+                <div key={item} onClick={() => setInput(item)} style={{
+                  padding: '8px 16px', borderRadius: '20px', border: '1px solid var(--outline-variant)',
+                  fontSize: '13px', color: 'rgba(255,255,255,0.7)', cursor: 'pointer',
+                  backgroundColor: 'rgba(255,255,255,0.05)', transition: 'all 0.2s'
+                }}>
+                  {item}
+                </div>
+              ))}
             </div>
           </div>
-        ))}
+        ) : (
+          messages.map((msg, idx) => (
+            msg.sender === 'user' ? (
+              <div key={idx} style={{ alignSelf: 'flex-end', maxWidth: '85%' }}>
+                <div style={{
+                  backgroundColor: 'var(--surface-container-high)',
+                  padding: '16px', borderRadius: '20px', borderTopRightRadius: '4px',
+                  color: 'var(--on-surface)', lineHeight: '1.5', border: '1px solid var(--outline-variant)'
+                }}>
+                  {msg.message}
+                </div>
+                <div style={{ textAlign: 'right', fontSize: '10px', color: 'var(--outline)', marginTop: '4px' }}>
+                  {new Date(msg.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+              </div>
+            ) : (
+              <div key={idx} style={{ alignSelf: 'flex-start', maxWidth: '90%' }}>
+                <div style={{
+                  background: 'linear-gradient(135deg, var(--electric-blue), var(--violet))',
+                  padding: '20px', borderRadius: '20px', borderTopLeftRadius: '4px',
+                  color: '#ffffff', lineHeight: '1.6', position: 'relative'
+                }} className="ai-aura">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', opacity: 0.9 }}>
+                    <Sparkles size={16} />
+                    <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '1px' }}>INTELLICORE</span>
+                  </div>
+
+                  {msg.message.includes('def fibonacci') ? (
+                    <>
+                      <p style={{ marginBottom: '16px' }}>
+                        {msg.message.split('def fibonacci')[0]}
+                      </p>
+                      <div style={{
+                        backgroundColor: '#1e1e1e', borderRadius: '8px', overflow: 'hidden'
+                      }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', backgroundColor: '#2d2d2d', fontSize: '12px', color: '#ccc' }}>
+                          <span>fibonacci.py</span>
+                          <Copy size={14} style={{ cursor: 'pointer' }} />
+                        </div>
+                        <pre style={{ margin: 0, padding: '16px', fontSize: '14px', overflowX: 'auto' }}>
+                          <code style={{ color: '#d4d4d4' }}>
+                            <span style={{ color: '#c586c0' }}>def</span> <span style={{ color: '#dcdcaa' }}>fibonacci</span>(n):{'\n'}
+                            {'    '}sequence = [<span style={{ color: '#b5cea8' }}>0</span>, <span style={{ color: '#b5cea8' }}>1</span>]{'\n'}
+                            {'    '}<span style={{ color: '#c586c0' }}>while</span> <span style={{ color: '#4ec9b0' }}>len</span>(sequence) {'<'} n:{'\n'}
+                            {'        '}next_val = sequence[<span style={{ color: '#b5cea8' }}>-1</span>] + sequence[<span style={{ color: '#b5cea8' }}>-2</span>]{'\n'}
+                            {'        '}sequence.append(next_val){'\n'}
+                            {'    '}<span style={{ color: '#c586c0' }}>return</span> sequence[:n]
+                          </code>
+                        </pre>
+                      </div>
+                    </>
+                  ) : (
+                    <p>{msg.message}</p>
+                  )}
+                </div>
+              </div>
+            )
+          ))
+        )}
         {isTyping && (
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'var(--secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Sparkles size={18} color="#fff" />
-            </div>
-            <div className="typing-indicator">
-              <span></span><span></span><span></span>
+          <div style={{ alignSelf: 'flex-start', maxWidth: '85%' }}>
+            <div style={{
+              background: 'linear-gradient(135deg, var(--electric-blue), var(--violet))',
+              padding: '12px 20px', borderRadius: '20px', borderTopLeftRadius: '4px',
+              display: 'flex', gap: '8px', alignItems: 'center'
+            }} className="pulsing-aura">
+              <Sparkles size={16} color="#fff" />
+              <span style={{ color: '#fff', fontSize: '14px' }}>{t('processing')}</span>
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Area */}
-      <div style={{ padding: '20px', backgroundColor: 'var(--background)', zIndex: 10 }}>
+      {/* Bottom Input Area (Only visible when messages exist) */}
+      {messages.length > 0 && (
         <div style={{
-          display: 'flex', alignItems: 'center', gap: '8px',
-          padding: '8px 16px', borderRadius: '24px', 
-          backgroundColor: 'var(--surface-container-high)', border: '1px solid var(--outline-variant)'
+          position: 'absolute', bottom: '80px', left: '20px', right: '20px', zIndex: 15
         }}>
-          <Paperclip size={20} color="var(--outline)" style={{ cursor: 'pointer' }} />
-          <input 
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyPress={(e) => e.key === 'Enter' && handleSend()}
-            placeholder={t('askAnything')}
-            style={{ 
-              flex: 1, background: 'none', border: 'none', color: 'var(--on-surface)', 
-              padding: '8px', fontSize: '15px', outline: 'none' 
-            }}
-          />
-          <div onClick={handleSend} style={{ 
-            width: '36px', height: '36px', borderRadius: '50%', 
-            backgroundColor: input.trim() ? 'var(--primary)' : 'transparent',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
-            transition: 'all 0.2s'
+          <div className="glass-card" style={{
+            display: 'flex', alignItems: 'center', padding: '8px 16px', gap: '12px',
+            borderRadius: '24px', backgroundColor: 'rgba(39, 42, 44, 0.8)', border: '1px solid rgba(255,255,255,0.05)'
           }}>
-            <Send size={18} color={input.trim() ? '#fff' : 'var(--outline)'} />
+            <Paperclip size={20} color="var(--outline)" style={{ cursor: 'pointer' }} />
+            <input
+              type="text"
+              placeholder={t('askNexus')}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyPress={e => e.key === 'Enter' && handleSend()}
+              style={{
+                flex: 1, background: 'transparent', border: 'none', color: '#fff',
+                fontSize: '16px', outline: 'none', padding: '8px 0',
+                fontFamily: 'Inter'
+              }}
+            />
+            <Mic size={20} color="var(--outline)" style={{ cursor: 'pointer' }} />
+            <button
+              onClick={handleSend}
+              style={{
+                background: 'linear-gradient(135deg, var(--electric-blue), var(--violet))',
+                border: 'none', borderRadius: '12px', width: '40px', height: '40px',
+                display: 'flex', justifyContent: 'center', alignItems: 'center',
+                cursor: 'pointer', marginLeft: '4px'
+              }}
+            >
+              <Send size={18} color="#fff" />
+            </button>
           </div>
         </div>
+      )}
+
+      {/* History Sidebar */}
+      <div 
+        ref={historyRef}
+        style={{
+          position: 'absolute', top: 0, left: 0, height: '100%',
+          width: '280px', backgroundColor: 'rgba(10, 12, 15, 0.95)',
+          backdropFilter: 'blur(20px)', zIndex: 100,
+          borderRight: '1px solid rgba(255,255,255,0.05)',
+          transform: showHistory ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          display: 'flex', flexDirection: 'column', padding: '24px'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+          <h3 style={{ color: '#fff', fontSize: '18px', fontWeight: 700, margin: 0 }}>Search History</h3>
+          <div onClick={() => setShowHistory(false)} style={{ cursor: 'pointer', color: 'rgba(255,255,255,0.4)' }}>
+            <Menu size={20} />
+          </div>
+        </div>
+
+        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          {messages.filter(m => m.sender === 'user').length === 0 ? (
+            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '14px', textAlign: 'center', marginTop: '40px' }}>
+              No history yet
+            </p>
+          ) : (
+            [...new Set(messages.filter(m => m.sender === 'user').map(m => m.message))].reverse().map((msg, i) => (
+              <div 
+                key={i}
+                onClick={() => { setInput(msg); setShowHistory(false); }}
+                style={{
+                  padding: '12px 16px', borderRadius: '12px',
+                  backgroundColor: 'rgba(255,255,255,0.03)',
+                  color: 'rgba(255,255,255,0.7)', fontSize: '13px',
+                  cursor: 'pointer', whiteSpace: 'nowrap', overflow: 'hidden',
+                  textOverflow: 'ellipsis', border: '1px solid transparent',
+                  transition: 'all 0.2s'
+                }}
+                onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
+                onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'transparent'; }}
+              >
+                {msg}
+              </div>
+            ))
+          )}
+        </div>
+
+        <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+          <button 
+            onClick={() => { setMessages([]); setShowHistory(false); }}
+            style={{ 
+              width: '100%', padding: '12px', borderRadius: '12px',
+              backgroundColor: 'rgba(255,68,68,0.1)', color: '#ff4444',
+              border: '1px solid rgba(255,68,68,0.2)', cursor: 'pointer',
+              fontSize: '13px', fontWeight: 600
+            }}
+          >
+            Clear Current Chat
+          </button>
+        </div>
       </div>
+
+      {/* Bottom Nav */}
+      <BottomNav />
     </div>
   );
 };
