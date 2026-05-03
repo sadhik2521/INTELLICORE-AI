@@ -13,7 +13,9 @@ const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
   const messagesEndRef = useRef(null);
+  const menuRef = useRef(null);
 
   useEffect(() => {
     fetchChats();
@@ -22,6 +24,16 @@ const Chat = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowProfileMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Use env variable for deployed backend (Render), fallback to localhost for dev
   let rawApiUrl = import.meta.env.VITE_API_URL 
@@ -132,17 +144,21 @@ const Chat = () => {
           WebkitTextFillColor: 'transparent',
           margin: 0, fontSize: '20px', cursor: 'pointer', fontWeight: 700
         }}>INTELLICORE AI</h2>
-        <div style={{
-          width: '32px', height: '32px', borderRadius: '50%',
-          overflow: 'hidden', border: '1px solid var(--electric-blue)',
-          display: 'flex', justifyContent: 'center', alignItems: 'center',
-          backgroundColor: 'rgba(255,255,255,0.1)'
-        }}>
+        <div 
+          onClick={() => setShowProfileMenu(!showProfileMenu)}
+          style={{
+            width: '32px', height: '32px', borderRadius: '50%',
+            overflow: 'hidden', border: '1px solid var(--electric-blue)',
+            display: 'flex', justifyContent: 'center', alignItems: 'center',
+            backgroundColor: 'rgba(255,255,255,0.1)', cursor: 'pointer',
+            position: 'relative'
+          }}
+        >
           {user?.avatar ? (
-            <img
-              src={user.avatar}
-              alt="Avatar"
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            <img 
+              src={user.avatar} 
+              alt="Avatar" 
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
             />
           ) : (
             <span style={{ color: 'var(--on-surface-variant)', fontSize: '12px', fontWeight: 600 }}>
@@ -150,6 +166,52 @@ const Chat = () => {
             </span>
           )}
         </div>
+
+        {/* Profile Dropdown Menu */}
+        {showProfileMenu && (
+          <div ref={menuRef} className="glass-card" style={{
+            position: 'absolute', top: '70px', right: '20px', width: '220px',
+            padding: '20px', zIndex: 100, borderRadius: '16px',
+            backgroundColor: 'rgba(20, 22, 25, 0.9)', border: '1px solid rgba(255,255,255,0.1)',
+            boxShadow: '0 10px 40px rgba(0,0,0,0.5)', animation: 'fadeIn 0.2s ease-out'
+          }}>
+            <div style={{ marginBottom: '16px', textAlign: 'center' }}>
+              <div style={{ 
+                width: '60px', height: '60px', borderRadius: '50%', margin: '0 auto 12px',
+                border: '2px solid var(--primary)', padding: '2px'
+              }}>
+                {user?.avatar ? (
+                  <img src={user.avatar} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                ) : (
+                  <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'var(--surface-container-high)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '20px', fontWeight: 700 }}>
+                    {user?.name?.[0]?.toUpperCase()}
+                  </div>
+                )}
+              </div>
+              <h3 style={{ color: '#fff', fontSize: '16px', margin: '0 0 4px 0' }}>{user?.name}</h3>
+              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', margin: 0 }}>{user?.email}</p>
+            </div>
+            
+            <div style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.05)', margin: '12px 0' }} />
+            
+            <button 
+              onClick={() => navigate('/profile')}
+              style={{ width: '100%', padding: '10px', background: 'transparent', border: 'none', color: '#fff', textAlign: 'left', cursor: 'pointer', fontSize: '14px', borderRadius: '8px', transition: 'background 0.2s' }}
+              onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.05)'}
+              onMouseOut={(e) => e.target.style.background = 'transparent'}
+            >
+              View Profile
+            </button>
+            <button 
+              onClick={() => { localStorage.removeItem('intellicoreUser'); window.location.reload(); }}
+              style={{ width: '100%', padding: '10px', background: 'transparent', border: 'none', color: '#ff4444', textAlign: 'left', cursor: 'pointer', fontSize: '14px', borderRadius: '8px', transition: 'background 0.2s' }}
+              onMouseOver={(e) => e.target.style.background = 'rgba(255,68,68,0.05)'}
+              onMouseOut={(e) => e.target.style.background = 'transparent'}
+            >
+              Sign Out
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Chat Area */}
