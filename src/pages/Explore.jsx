@@ -1,105 +1,126 @@
 import React from 'react';
-import BottomNav from '../components/BottomNav';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Sparkles, Zap, Shield, Cpu, Layers } from 'lucide-react';
+import { useLanguage } from '../context/LanguageContext';
+import { ChevronLeft, Sparkles, Zap, Shield, Cpu, Layers } from 'lucide-react';
 
 const Explore = () => {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
 
   const handleBack = () => {
-    if (user) {
-      navigate('/chat');
-    } else {
-      navigate('/');
-    }
+    if (user) navigate('/chat');
+    else navigate('/');
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ 
+      position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+      display: 'flex', flexDirection: 'column', 
+      backgroundColor: 'var(--background)', overflow: 'hidden' 
+    }}>
       {/* Header */}
       <div style={{
-        display: 'flex', alignItems: 'center',
-        padding: '16px 20px', zIndex: 10, backgroundColor: 'rgba(16, 20, 21, 0.8)', backdropFilter: 'blur(10px)',
-        borderBottom: '1px solid var(--surface-variant)'
+        height: '64px', minHeight: '64px',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        padding: '0 20px', borderBottom: '1px solid var(--outline)',
+        backgroundColor: 'var(--surface)', zIndex: 10, backdropFilter: 'blur(10px)'
       }}>
-        <ArrowLeft size={24} color="var(--outline)" onClick={handleBack} style={{ cursor: 'pointer' }} />
-        <h2 className="headline-lg" style={{ color: 'var(--primary)', margin: '0 auto', fontSize: '20px', transform: 'translateX(-12px)' }}>Explore</h2>
+        <div onClick={handleBack} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+          <ChevronLeft size={24} color="var(--on-surface)" />
+        </div>
+        <h2 className="headline-lg maya-text" style={{ 
+          margin: 0, fontSize: '18px', fontWeight: 800, letterSpacing: '-0.5px' 
+        }}>{t('exploreMaya')}</h2>
+        <div style={{ width: '24px' }} />
       </div>
 
       {/* Scrollable Content */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '20px', paddingBottom: user ? '80px' : '20px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        
+      <div style={{ flex: 1, overflowY: 'auto', padding: '24px', paddingBottom: user ? '120px' : '40px', display: 'flex', flexDirection: 'column', gap: '28px' }}>
+
         {/* Intro */}
         <div style={{ textAlign: 'center', marginBottom: '8px', marginTop: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
-             <Sparkles size={48} color="var(--secondary)" className="pulsing-aura" style={{ borderRadius: '50%' }} />
+          <div style={{ position: 'relative', display: 'inline-block', marginBottom: '24px' }}>
+            <div className="pulse" style={{ position: 'absolute', inset: -20, background: 'var(--accent)', filter: 'blur(30px)', borderRadius: '50%', zIndex: -1 }} />
+            <Sparkles size={64} color="var(--primary)" />
           </div>
-          <h1 className="headline-xl" onClick={() => window.location.reload()} style={{ fontSize: '28px', marginBottom: '8px', cursor: 'pointer', color: 'var(--primary)' }}>INTELLICORE AI</h1>
-          <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>
-            Discover the next generation of conversational intelligence and productivity.
+          <h1 className="headline-xl maya-text" style={{ fontSize: '32px', marginBottom: '12px', fontWeight: 800 }}>MAYA COGNITION</h1>
+          <p className="body-md" style={{ color: 'var(--on-surface-variant)', maxWidth: '300px', margin: '0 auto' }}>
+            {t('discoverNext')}
           </p>
         </div>
 
         {/* Section 1: AI Capabilities */}
-        <div className="glass-card" style={{ padding: '24px' }}>
+        <div className="glass-card" style={{ padding: '24px', borderRadius: '28px', backgroundColor: 'var(--surface-bright)', border: '1px solid var(--outline)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <div style={{ padding: '8px', backgroundColor: 'rgba(46,91,255,0.1)', borderRadius: '8px' }}>
+            <div style={{ padding: '12px', backgroundColor: 'var(--accent)', borderRadius: '14px' }}>
               <Cpu size={24} color="var(--primary)" />
             </div>
-            <h3 className="headline-lg" style={{ fontSize: '18px', margin: 0 }}>AI Capabilities</h3>
+            <h3 style={{ fontSize: '18px', margin: 0, fontWeight: 800, color: 'var(--on-surface)' }}>{t('aiCapabilities')}</h3>
           </div>
-          <p style={{ color: 'var(--on-surface-variant)', fontSize: '14px', lineHeight: '1.6' }}>
-            INTELLICORE leverages our advanced Neural Engine v4.0 to understand complex queries, generate programming code, write creative content, and synthesize large amounts of data in milliseconds.
+          <p style={{ color: 'var(--on-surface-variant)', fontSize: '14px', lineHeight: '1.7', margin: 0 }}>
+            {t('aiDescription')}
           </p>
         </div>
 
         {/* Section 2: Key Features */}
-        <div className="glass-card" style={{ padding: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <div style={{ padding: '8px', backgroundColor: 'rgba(208,188,255,0.1)', borderRadius: '8px' }}>
-               <Layers size={24} color="var(--secondary)" />
+        <div className="glass-card" style={{ padding: '24px', borderRadius: '28px', backgroundColor: 'var(--surface-bright)', border: '1px solid var(--outline)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
+            <div style={{ padding: '12px', backgroundColor: 'rgba(208,188,255,0.1)', borderRadius: '14px' }}>
+              <Layers size={24} color="var(--secondary)" />
             </div>
-            <h3 className="headline-lg" style={{ fontSize: '18px', margin: 0 }}>Key Features</h3>
+            <h3 style={{ fontSize: '18px', margin: 0, fontWeight: 800, color: 'var(--on-surface)' }}>{t('keyFeatures')}</h3>
           </div>
-          <ul style={{ color: 'var(--on-surface-variant)', fontSize: '14px', lineHeight: '1.6', paddingLeft: '20px', margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            <li><strong>Contextual Memory:</strong> Remembers your past interactions for seamless follow-ups.</li>
-            <li><strong>Code Execution:</strong> Generates and formats code blocks natively.</li>
-            <li><strong>Voice Input:</strong> Speak naturally instead of typing your queries.</li>
-            <li><strong>Multi-Language Support:</strong> Instantly switch between English, Hindi, and Telugu.</li>
-          </ul>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {[
+              { label: t('featureMemory'), desc: t('featureMemoryDesc') },
+              { label: t('featureCode'), desc: t('featureCodeDesc') },
+              { label: t('featureVoice'), desc: t('featureVoiceDesc') },
+              { label: t('featureMultiLang'), desc: t('featureMultiLangDesc') }
+            ].map((f, i) => (
+              <div key={i} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--primary)', marginTop: '8px' }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--on-surface)' }}>{f.label}</div>
+                  <div style={{ fontSize: '13px', color: 'var(--on-surface-variant)', marginTop: '2px' }}>{f.desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Section 3: How It Works */}
-        <div className="glass-card" style={{ padding: '24px' }}>
+        <div className="glass-card" style={{ padding: '24px', borderRadius: '28px', backgroundColor: 'var(--surface-bright)', border: '1px solid var(--outline)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <div style={{ padding: '8px', backgroundColor: 'rgba(184,195,255,0.1)', borderRadius: '8px' }}>
+            <div style={{ padding: '12px', backgroundColor: 'rgba(184,195,255,0.1)', borderRadius: '14px' }}>
               <Zap size={24} color="var(--primary)" />
             </div>
-            <h3 className="headline-lg" style={{ fontSize: '18px', margin: 0 }}>How It Works</h3>
+            <h3 style={{ fontSize: '18px', margin: 0, fontWeight: 800, color: 'var(--on-surface)' }}>{t('howItWorks')}</h3>
           </div>
-          <p style={{ color: 'var(--on-surface-variant)', fontSize: '14px', lineHeight: '1.6' }}>
-            Simply type or speak your request into the chat interface. INTELLICORE processes your intent through secure, cloud-based neural pathways and returns highly accurate, context-aware responses instantly.
+          <p style={{ color: 'var(--on-surface-variant)', fontSize: '14px', lineHeight: '1.7', margin: 0 }}>
+            {t('howItWorksDesc')}
           </p>
         </div>
 
         {/* Section 4: Benefits */}
-        <div className="glass-card" style={{ padding: '24px' }}>
+        <div className="glass-card" style={{ padding: '24px', borderRadius: '28px', backgroundColor: 'var(--surface-bright)', border: '1px solid var(--outline)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-            <div style={{ padding: '8px', backgroundColor: 'rgba(87,27,193,0.1)', borderRadius: '8px' }}>
+            <div style={{ padding: '12px', backgroundColor: 'rgba(87,27,193,0.1)', borderRadius: '14px' }}>
               <Shield size={24} color="var(--secondary)" />
             </div>
-            <h3 className="headline-lg" style={{ fontSize: '18px', margin: 0 }}>Benefits</h3>
+            <h3 style={{ fontSize: '18px', margin: 0, fontWeight: 800, color: 'var(--on-surface)' }}>{t('benefits')}</h3>
           </div>
-          <p style={{ color: 'var(--on-surface-variant)', fontSize: '14px', lineHeight: '1.6' }}>
-            Boost your productivity, solve problems faster, and brainstorm effortlessly. All your data is privacy-encrypted, ensuring a safe and secure digital companion experience.
+          <p style={{ color: 'var(--on-surface-variant)', fontSize: '14px', lineHeight: '1.7', margin: 0 }}>
+            {t('benefitsDesc')}
           </p>
         </div>
 
+        {/* Copyright */}
+        <div style={{ textAlign: 'center', marginTop: '12px', opacity: 0.6 }}>
+          <p style={{ fontSize: '11px', color: 'var(--on-surface-variant)', fontWeight: 600 }}>© 2026 Maya Cognition Systems Inc.</p>
+        </div>
       </div>
-
-      {user && <BottomNav />}
     </div>
   );
 };

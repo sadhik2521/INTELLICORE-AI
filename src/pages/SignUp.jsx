@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight, Camera, X } from 'lucide-react';
+import { ArrowRight, Camera, X, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { GoogleSignUpButton } from '../components/RealOAuthButtons';
 // Removed AnimatedBackground import
@@ -13,6 +13,7 @@ const SignUp = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [avatar, setAvatar] = useState(null);
   const [googleLinked, setGoogleLinked] = useState(false); // tracks if Google populated the form
@@ -84,17 +85,13 @@ const SignUp = () => {
     }
   };
 
-  const inputStyle = {
-    width: '100%', border: 'none', background: 'transparent',
-    color: '#101415', fontSize: '16px', outline: 'none', fontFamily: 'Inter'
-  };
-  const inputWrapStyle = { backgroundColor: '#ffffff', borderRadius: '4px', padding: '12px' };
+
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', padding: '32px 24px', position: 'relative', overflowY: 'auto', background: 'transparent' }}>
 
       <div style={{ textAlign: 'center', marginTop: '16px', marginBottom: '24px' }}>
-        <h1 className="headline-xl" onClick={() => navigate('/')} style={{ color: 'var(--primary)', marginBottom: '8px', cursor: 'pointer' }}>INTELLICORE AI</h1>
+        <h1 className="headline-xl" onClick={() => navigate('/')} style={{ color: 'var(--primary)', marginBottom: '8px', cursor: 'pointer' }}>MAYA COGNITION</h1>
         <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>Create an account to get started.</p>
       </div>
 
@@ -157,22 +154,50 @@ const SignUp = () => {
       <form onSubmit={handleSignUp} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <div>
           <label className="label-md" style={{ color: 'var(--on-surface-variant)', display: 'block', marginBottom: '8px' }}>USERNAME</label>
-          <div style={inputWrapStyle}>
-            <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} style={inputStyle} required />
-          </div>
+          <input 
+            type="text" 
+            value={username} 
+            onChange={(e) => setUsername(e.target.value)} 
+            className="input-field"
+            placeholder="Username"
+            required 
+          />
         </div>
 
         <div>
           <label className="label-md" style={{ color: 'var(--on-surface-variant)', display: 'block', marginBottom: '8px' }}>EMAIL ADDRESS</label>
-          <div style={inputWrapStyle}>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} style={inputStyle} required />
-          </div>
+          <input 
+            type="email" 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
+            className="input-field"
+            placeholder="Email Address"
+            required 
+          />
         </div>
 
         <div>
           <label className="label-md" style={{ color: 'var(--on-surface-variant)', display: 'block', marginBottom: '8px' }}>PASSWORD</label>
-          <div style={inputWrapStyle}>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={{ ...inputStyle, letterSpacing: '2px' }} required />
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+            <input 
+              type={showPassword ? "text" : "password"} 
+              value={password} 
+              onChange={(e) => setPassword(e.target.value)} 
+              className="input-field"
+              style={{ letterSpacing: !showPassword && password ? '2px' : 'normal', paddingRight: '48px' }} 
+              placeholder="Password"
+              required 
+            />
+            <div 
+              onClick={() => setShowPassword(!showPassword)}
+              style={{ 
+                position: 'absolute', right: '16px', cursor: 'pointer', 
+                color: 'var(--on-surface-variant)', display: 'flex', alignItems: 'center',
+                zIndex: 5, padding: '4px'
+              }}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </div>
           </div>
         </div>
 
@@ -215,6 +240,16 @@ const SignUp = () => {
         Already have an account? <span style={{ color: 'var(--primary)', cursor: 'pointer' }} onClick={() => navigate('/login')}>Sign In</span>
       </div>
 
+      <div style={{
+        textAlign: 'center',
+        padding: '24px 0',
+        fontSize: '10px',
+        color: 'var(--outline)',
+        letterSpacing: '1px',
+        marginTop: 'auto'
+      }}>
+        © 2026 Maya Cognition Systems Inc.
+      </div>
     </div>
   );
 };

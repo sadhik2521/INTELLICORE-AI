@@ -1,13 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Menu, Paperclip, Mic, Send, Copy, Sparkles } from 'lucide-react';
+import { Menu, Paperclip, Mic, Send, Copy, Sparkles, Cpu, Zap, Activity, X, Cloud } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
-import BottomNav from '../components/BottomNav';
-// Removed AnimatedBackground import
 
 const Chat = () => {
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
@@ -15,7 +13,7 @@ const Chat = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const messagesEndRef = useRef(null);
+  const scrollContainerRef = useRef(null);
   const menuRef = useRef(null);
   const historyRef = useRef(null);
 
@@ -24,7 +22,13 @@ const Chat = () => {
   }, []);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (scrollContainerRef.current) {
+      const { scrollHeight, clientHeight } = scrollContainerRef.current;
+      scrollContainerRef.current.scrollTo({
+        top: scrollHeight - clientHeight,
+        behavior: messages.length > 5 ? 'smooth' : 'auto'
+      });
+    }
   }, [messages, isTyping]);
 
   useEffect(() => {
@@ -40,31 +44,18 @@ const Chat = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Use env variable for deployed backend (Render)
-  // For mobile apps (Capacitor), we force the Render URL because localhost won't work
-  let rawApiUrl = import.meta.env.VITE_API_URL || 'https://intellicore-ai-ro40.onrender.com';
-        
-  // Only use localhost if specifically running on a web browser at localhost
+  const rawApiUrl = import.meta.env.VITE_API_URL || 'https://intellicore-ai-ro40.onrender.com';
+  let API_URL = rawApiUrl ? rawApiUrl.replace(/\/$/, '') : null;
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    if (!import.meta.env.VITE_API_URL) {
-      rawApiUrl = 'http://localhost:3001';
-    }
+    if (!import.meta.env.VITE_API_URL) API_URL = 'http://localhost:3001';
   }
 
-  // Remove trailing slash if present
-  const API_URL = rawApiUrl ? rawApiUrl.replace(/\/$/, '') : null;
-
-  useEffect(() => {
-    if (API_URL) console.log('🚀 INTELLICORE CHAT API URL:', API_URL);
-  }, [API_URL]);
-
-  // localStorage helpers for chat persistence
   const getLocalChats = () => {
-    try { return JSON.parse(localStorage.getItem(`intellicoreChats_${user?.id}`) || '[]'); }
+    try { return JSON.parse(localStorage.getItem(`mayaChats_${user?.id}`) || '[]'); }
     catch { return []; }
   };
   const saveLocalChats = (msgs) => {
-    localStorage.setItem(`intellicoreChats_${user?.id}`, JSON.stringify(msgs));
+    localStorage.setItem(`mayaChats_${user?.id}`, JSON.stringify(msgs));
   };
 
   const fetchChats = async () => {
@@ -75,9 +66,7 @@ const Chat = () => {
         const data = await res.json();
         setMessages(data);
         return;
-      } catch (e) {
-        console.warn('Backend unavailable, using local chats');
-      }
+      } catch (e) { console.warn('Backend unavailable'); }
     }
     setMessages(getLocalChats());
   };
@@ -86,28 +75,17 @@ const Chat = () => {
     if (!user) return;
     setMessages([]);
     setShowHistory(false);
-    localStorage.removeItem(`intellicoreChats_${user.id}`);
+    localStorage.removeItem(`mayaChats_${user.id}`);
     if (API_URL) {
-      try {
-        await fetch(`${API_URL}/api/chats/${user.id}`, { method: 'DELETE' });
-      } catch (e) {
-        console.error('Failed to clear backend chats:', e);
-      }
+      try { await fetch(`${API_URL}/api/chats/${user.id}`, { method: 'DELETE' }); }
+      catch (e) { console.error('Failed to clear backend chats'); }
     }
   };
 
-  // AI response templates for local fallback
   const getAIResponse = (userMessage) => {
     const msg = userMessage.toLowerCase();
-    if (msg.includes('hello') || msg.includes('hi') || msg.includes('hey'))
-      return "Hello! 👋 I'm INTELLICORE, your advanced neural assistant. How can I help you today?";
-    if (msg.includes('code') || msg.includes('program'))
-      return "I'd be happy to help with coding! Please share the specific programming task, language, or concept you'd like assistance with, and I'll provide a detailed solution.";
-    if (msg.includes('explain') || msg.includes('what is'))
-      return "Great question! I'll break this down for you in a clear and comprehensive way. Could you specify the topic you'd like me to explain in more detail?";
-    if (msg.includes('help'))
-      return "Of course! I'm here to assist you. I can help with coding, brainstorming, writing, analysis, and much more. What would you like to work on?";
-    return "That's an interesting query! I've analyzed your input and I'm ready to provide a comprehensive response. As an advanced AI assistant, I can help you explore this topic further. Would you like me to elaborate on any specific aspect?";
+    if (msg.includes('hello') || msg.includes('hi')) return "Hello! 👋 I'm MAYA, your neural assistant. How can I help you today?";
+    return "I've analyzed your query and I'm ready to assist. Would you like me to elaborate further on this topic?";
   };
 
   const handleSend = async () => {
@@ -125,17 +103,11 @@ const Chat = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(newMessage)
         });
-        setTimeout(() => {
-          fetchChats();
-          setIsTyping(false);
-        }, 1500);
+        setTimeout(() => { fetchChats(); setIsTyping(false); }, 1500);
         return;
-      } catch (e) {
-        console.warn('Backend unavailable, using local chat');
-      }
+      } catch (e) { console.warn('Backend unavailable'); }
     }
 
-    // Fallback: localStorage + simulated AI response
     saveLocalChats(updatedMessages);
     setTimeout(() => {
       const aiMessage = { user_id: user.id, message: getAIResponse(input), sender: 'ai', timestamp: new Date().toISOString() };
@@ -148,346 +120,165 @@ const Chat = () => {
 
   return (
     <div style={{
-      display: 'flex', flexDirection: 'column', height: '100vh',
-      position: 'relative', overflow: 'hidden',
-      background: 'transparent',
+      position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+      display: 'flex', flexDirection: 'column',
+      backgroundColor: 'var(--background)', overflow: 'hidden'
     }}>
       {/* Header */}
       <div style={{
+        height: '64px', minHeight: '64px',
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-        padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)',
-        backgroundColor: 'rgba(5, 6, 8, 0.6)', zIndex: 10,
-        backdropFilter: 'blur(10px)'
+        padding: '0 20px', borderBottom: '1px solid var(--outline)',
+        backgroundColor: 'var(--surface)', zIndex: 10, backdropFilter: 'blur(10px)'
       }}>
         <div className="menu-trigger" onClick={() => setShowHistory(!showHistory)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-          <Menu size={24} color="var(--outline)" />
+          <Menu size={24} color="var(--on-surface)" />
         </div>
-        <h2 className="headline-lg" onClick={() => { setMessages([]); setInput(''); }} style={{
-          background: 'linear-gradient(135deg, var(--on-surface) 30%, var(--primary) 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          margin: 0, fontSize: '20px', cursor: 'pointer', fontWeight: 700
-        }}>INTELLICORE AI</h2>
+        <h2 className="headline-lg maya-text" onClick={() => { setMessages([]); setInput(''); }} style={{
+          margin: 0, fontSize: '20px', cursor: 'pointer', fontWeight: 800, letterSpacing: '-0.5px'
+        }}>MAYA COGNITION</h2>
         <div
           onClick={() => setShowProfileMenu(!showProfileMenu)}
           style={{
-            width: '32px', height: '32px', borderRadius: '50%',
-            overflow: 'hidden', border: '1px solid var(--electric-blue)',
+            width: '36px', height: '36px', borderRadius: '50%',
+            overflow: 'hidden', border: '1px solid var(--outline)',
             display: 'flex', justifyContent: 'center', alignItems: 'center',
-            backgroundColor: 'rgba(255,255,255,0.1)', cursor: 'pointer',
-            position: 'relative'
+            backgroundColor: 'var(--surface-bright)', cursor: 'pointer'
           }}
         >
-          {user?.avatar ? (
-            <img
-              src={user.avatar}
-              alt="Avatar"
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-          ) : (
-            <span style={{ color: 'var(--on-surface-variant)', fontSize: '12px', fontWeight: 600 }}>
-              {user?.name?.[0]?.toUpperCase() || 'U'}
-            </span>
-          )}
+          {user?.avatar ? <img src={user.avatar} alt="Avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ color: 'var(--primary)', fontSize: '14px', fontWeight: 700 }}>{user?.name?.[0]?.toUpperCase()}</span>}
         </div>
 
-        {/* Profile Dropdown Menu */}
+        {/* Profile Menu Dropdown */}
         {showProfileMenu && (
           <div ref={menuRef} className="glass-card" style={{
-            position: 'absolute', top: '70px', right: '20px', width: '220px',
-            padding: '20px', zIndex: 100, borderRadius: '16px',
-            backgroundColor: 'rgba(20, 22, 25, 0.9)', border: '1px solid rgba(255,255,255,0.1)',
-            boxShadow: '0 10px 40px rgba(0,0,0,0.5)', animation: 'fadeIn 0.2s ease-out'
+            position: 'absolute', top: '70px', right: '20px', width: '240px',
+            padding: '24px', zIndex: 100, borderRadius: '24px'
           }}>
-            <div style={{ marginBottom: '16px', textAlign: 'center' }}>
-              <div style={{
-                width: '60px', height: '60px', borderRadius: '50%', margin: '0 auto 12px',
-                border: '2px solid var(--primary)', padding: '2px'
-              }}>
-                {user?.avatar ? (
-                  <img src={user.avatar} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
-                ) : (
-                  <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'var(--surface-container-high)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '20px', fontWeight: 700 }}>
-                    {user?.name?.[0]?.toUpperCase()}
-                  </div>
-                )}
+            <div style={{ marginBottom: '20px', textAlign: 'center' }}>
+              <div style={{ width: '64px', height: '64px', borderRadius: '50%', margin: '0 auto 12px', border: '2px solid var(--primary)', padding: '2px' }}>
+                {user?.avatar ? <img src={user.avatar} alt="" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} /> : <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--primary)', fontSize: '24px', fontWeight: 800 }}>{user?.name?.[0]}</div>}
               </div>
-              <h3 style={{ color: '#fff', fontSize: '16px', margin: '0 0 4px 0' }}>{user?.name}</h3>
-              <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px', margin: 0 }}>{user?.email}</p>
+              <h3 style={{ fontSize: '18px', margin: '0 0 4px 0' }}>{user?.name}</h3>
+              <p style={{ color: 'var(--on-surface-variant)', fontSize: '12px', margin: 0 }}>{user?.email}</p>
             </div>
-
-            <div style={{ height: '1px', backgroundColor: 'rgba(255,255,255,0.05)', margin: '12px 0' }} />
-
-            <button
-              onClick={() => navigate('/profile')}
-              style={{ width: '100%', padding: '10px', background: 'transparent', border: 'none', color: '#fff', textAlign: 'left', cursor: 'pointer', fontSize: '14px', borderRadius: '8px', transition: 'background 0.2s' }}
-              onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.05)'}
-              onMouseOut={(e) => e.target.style.background = 'transparent'}
-            >
-              View Profile
-            </button>
-            <button
-              onClick={() => { localStorage.removeItem('intellicoreUser'); window.location.reload(); }}
-              style={{ width: '100%', padding: '10px', background: 'transparent', border: 'none', color: '#ff4444', textAlign: 'left', cursor: 'pointer', fontSize: '14px', borderRadius: '8px', transition: 'background 0.2s' }}
-              onMouseOver={(e) => e.target.style.background = 'rgba(255,68,68,0.05)'}
-              onMouseOut={(e) => e.target.style.background = 'transparent'}
-            >
-              Sign Out
-            </button>
+            <button className="btn-secondary" onClick={() => navigate('/profile')} style={{ width: '100%', marginBottom: '8px', padding: '10px' }}>{t('profile')}</button>
+            <button className="btn-secondary" onClick={() => { logout(); navigate('/'); }} style={{ width: '100%', color: 'var(--error)', borderColor: 'rgba(223, 21, 41, 0.2)' }}>{t('logOut')}</button>
           </div>
         )}
       </div>
 
-      {/* Chat Area */}
-      <div style={{
-        flex: 1, overflowY: 'auto', padding: '20px', paddingBottom: messages.length === 0 ? '0' : '140px',
-        display: 'flex', flexDirection: 'column', gap: '24px', position: 'relative'
-      }}>
+      {/* Main Content Area */}
+      <div 
+        ref={scrollContainerRef}
+        style={{ flex: 1, overflowY: 'auto', padding: '24px', paddingBottom: '160px', position: 'relative' }}
+      >
         {messages.length === 0 ? (
-          <div style={{
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            height: '100%', textAlign: 'center', padding: '0 24px'
-          }}>
-            <div style={{
-              width: '100px', height: '100px', borderRadius: '50%',
-              background: 'linear-gradient(135deg, rgba(46,91,255,0.1), rgba(87,27,193,0.1))',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              marginBottom: '20px', position: 'relative',
-              border: '1px solid rgba(255,255,255,0.05)'
-            }}>
-              <Sparkles size={50} color="var(--primary)" style={{ filter: 'drop-shadow(0 0 15px var(--primary))' }} />
-            </div>
-            <h1 className="headline-lg" style={{
-              color: '#fff', marginBottom: '12px', fontSize: '26px', fontWeight: 700,
-              textShadow: '0 2px 10px rgba(0,0,0,0.5)'
-            }}>{t('how Can I Help')}</h1>
-            <p className="body-md" style={{ color: 'rgba(255,255,255,0.6)', maxWidth: '300px', lineHeight: '1.6', marginBottom: '32px' }}>
-              I'm INTELLICORE, your advanced neural assistant. Ask me anything to get started.
-            </p>
-
-            {/* Centered Input Bar */}
-            <div style={{ width: '100%', maxWidth: '400px', marginBottom: '32px' }}>
-              <div className="glass-card" style={{
-                display: 'flex', alignItems: 'center', padding: '8px 16px', gap: '12px',
-                borderRadius: '24px', backgroundColor: 'rgba(39, 42, 44, 0.8)', border: '1px solid rgba(255,255,255,0.1)',
-                boxShadow: '0 4px 30px rgba(0,0,0,0.3)'
-              }}>
-                <Paperclip size={20} color="var(--outline)" style={{ cursor: 'pointer' }} />
-                <input
-                  type="text"
-                  placeholder={t('askNexus')}
-                  value={input}
-                  onChange={e => setInput(e.target.value)}
-                  onKeyPress={e => e.key === 'Enter' && handleSend()}
-                  style={{
-                    flex: 1, background: 'transparent', border: 'none', color: '#fff',
-                    fontSize: '16px', outline: 'none', padding: '12px 0',
-                    fontFamily: 'Inter'
-                  }}
-                />
-                <button
-                  onClick={handleSend}
-                  style={{
-                    background: 'linear-gradient(135deg, var(--electric-blue), var(--violet))',
-                    border: 'none', borderRadius: '12px', width: '40px', height: '40px',
-                    display: 'flex', justifyContent: 'center', alignItems: 'center',
-                    cursor: 'pointer'
-                  }}
-                >
-                  <Send size={18} color="#fff" />
-                </button>
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '24px' }}>
+            <div style={{ position: 'relative', marginBottom: '32px' }}>
+              <div className="pulse" style={{ position: 'absolute', width: '160px', height: '160px', borderRadius: '50%', background: 'var(--accent)', filter: 'blur(30px)', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', zIndex: -1 }} />
+              <div style={{ width: '100px', height: '100px', borderRadius: '28px', background: 'var(--brand-gradient)', display: 'flex', justifyContent: 'center', alignItems: 'center', boxShadow: '0 15px 35px rgba(1, 41, 112, 0.2)', transform: 'rotate(-5deg)' }}>
+                <Cpu size={50} color="#fff" />
+              </div>
+              <div className="floating" style={{ position: 'absolute', top: '-15px', right: '-20px' }}>
+                <div style={{ padding: '8px', borderRadius: '12px', background: 'var(--surface-bright)', border: '1px solid var(--outline)', boxShadow: '0 8px 20px rgba(0,0,0,0.05)' }}>
+                  <Sparkles size={18} color="var(--primary)" />
+                </div>
+              </div>
+              <div className="floating" style={{ position: 'absolute', top: '20px', left: '-50px', animationDelay: '0.5s' }}>
+                <div style={{ padding: '8px', borderRadius: '12px', background: 'var(--surface-bright)', border: '1px solid var(--outline)', boxShadow: '0 8px 20px rgba(0,0,0,0.05)' }}>
+                  <Zap size={22} color="var(--primary)" />
+                </div>
+              </div>
+              <div className="floating" style={{ position: 'absolute', bottom: '-10px', right: '-40px', animationDelay: '1s' }}>
+                <div style={{ padding: '8px', borderRadius: '12px', background: 'var(--surface-bright)', border: '1px solid var(--outline)', boxShadow: '0 8px 20px rgba(0,0,0,0.05)' }}>
+                  <Cloud size={22} color="#012970" />
+                </div>
               </div>
             </div>
-
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center' }}>
-              {['Write code', 'Explain AI', 'Brainstorm ideas'].map((item) => (
-                <div key={item} onClick={() => setInput(item)} style={{
-                  padding: '8px 16px', borderRadius: '20px', border: '1px solid var(--outline-variant)',
-                  fontSize: '13px', color: 'rgba(255,255,255,0.7)', cursor: 'pointer',
-                  backgroundColor: 'rgba(255,255,255,0.05)', transition: 'all 0.2s'
-                }}>
-                  {item}
-                </div>
+            <h1 className="headline-xl maya-text" style={{ fontWeight: 800, marginBottom: '16px' }}>{t('howCanIHelp')}</h1>
+            <p className="body-md" style={{ color: 'var(--on-surface-variant)', maxWidth: '300px', marginBottom: '40px' }}>
+              {t('mayaAssistant')}
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', justifyContent: 'center' }}>
+              {[t('writeCode'), t('explainAI'), t('brainstorm')].map(item => (
+                <button key={item} className="btn-secondary" onClick={() => setInput(item)} style={{ padding: '10px 24px', fontSize: '14px' }}>{item}</button>
               ))}
             </div>
           </div>
         ) : (
-          messages.map((msg, idx) => (
-            msg.sender === 'user' ? (
-              <div key={idx} style={{ alignSelf: 'flex-end', maxWidth: '85%' }}>
-                <div style={{
-                  backgroundColor: 'var(--surface-container-high)',
-                  padding: '16px', borderRadius: '20px', borderTopRightRadius: '4px',
-                  color: 'var(--on-surface)', lineHeight: '1.5', border: '1px solid var(--outline-variant)'
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {messages.map((msg, idx) => (
+              <div key={idx} style={{ alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start', maxWidth: '85%' }}>
+                <div className={msg.sender === 'user' ? "glass-card" : ""} style={{
+                  padding: '16px 20px', borderRadius: '20px',
+                  background: msg.sender === 'user' ? 'var(--surface-bright)' : 'var(--brand-gradient)',
+                  color: msg.sender === 'user' ? 'var(--on-surface)' : '#ffffff',
+                  border: msg.sender === 'user' ? '1px solid var(--outline)' : 'none',
+                  boxShadow: msg.sender === 'user' ? '0 4px 15px rgba(0,0,0,0.05)' : '0 8px 25px rgba(1, 41, 112, 0.2)'
                 }}>
-                  {msg.message}
-                </div>
-                <div style={{ textAlign: 'right', fontSize: '10px', color: 'var(--outline)', marginTop: '4px' }}>
-                  {new Date(msg.timestamp || Date.now()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  {msg.sender === 'ai' && <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', opacity: 0.8 }}><Activity size={14} /><span style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '1px' }}>MAYA</span></div>}
+                  <div style={{ fontSize: '15px', lineHeight: '1.6' }}>{msg.message}</div>
                 </div>
               </div>
-            ) : (
-              <div key={idx} style={{ alignSelf: 'flex-start', maxWidth: '90%' }}>
-                <div style={{
-                  background: 'linear-gradient(135deg, var(--electric-blue), var(--violet))',
-                  padding: '20px', borderRadius: '20px', borderTopLeftRadius: '4px',
-                  color: '#ffffff', lineHeight: '1.6', position: 'relative'
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', opacity: 0.9 }}>
-                    <Sparkles size={16} />
-                    <span style={{ fontSize: '12px', fontWeight: 600, letterSpacing: '1px' }}>INTELLICORE</span>
-                  </div>
-
-                  {msg.message.includes('def fibonacci') ? (
-                    <>
-                      <p style={{ marginBottom: '16px' }}>
-                        {msg.message.split('def fibonacci')[0]}
-                      </p>
-                      <div style={{
-                        backgroundColor: '#1e1e1e', borderRadius: '8px', overflow: 'hidden'
-                      }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 12px', backgroundColor: '#2d2d2d', fontSize: '12px', color: '#ccc' }}>
-                          <span>fibonacci.py</span>
-                          <Copy size={14} style={{ cursor: 'pointer' }} />
-                        </div>
-                        <pre style={{ margin: 0, padding: '16px', fontSize: '14px', overflowX: 'auto' }}>
-                          <code style={{ color: '#d4d4d4' }}>
-                            <span style={{ color: '#c586c0' }}>def</span> <span style={{ color: '#dcdcaa' }}>fibonacci</span>(n):{'\n'}
-                            {'    '}sequence = [<span style={{ color: '#b5cea8' }}>0</span>, <span style={{ color: '#b5cea8' }}>1</span>]{'\n'}
-                            {'    '}<span style={{ color: '#c586c0' }}>while</span> <span style={{ color: '#4ec9b0' }}>len</span>(sequence) {'<'} n:{'\n'}
-                            {'        '}next_val = sequence[<span style={{ color: '#b5cea8' }}>-1</span>] + sequence[<span style={{ color: '#b5cea8' }}>-2</span>]{'\n'}
-                            {'        '}sequence.append(next_val){'\n'}
-                            {'    '}<span style={{ color: '#c586c0' }}>return</span> sequence[:n]
-                          </code>
-                        </pre>
-                      </div>
-                    </>
-                  ) : (
-                    <p>{msg.message}</p>
-                  )}
-                </div>
-              </div>
-            )
-          ))
-        )}
-        {isTyping && (
-          <div style={{ alignSelf: 'flex-start', maxWidth: '85%' }}>
-            <div style={{
-              background: 'linear-gradient(135deg, var(--electric-blue), var(--violet))',
-              padding: '12px 20px', borderRadius: '20px', borderTopLeftRadius: '4px',
-              display: 'flex', gap: '8px', alignItems: 'center',
-              opacity: 0.9
-            }}>
-              <Sparkles size={16} color="#fff" />
-              <span style={{ color: '#fff', fontSize: '14px' }}>{t('processing')}</span>
-            </div>
+            ))}
+            {isTyping && <div style={{ alignSelf: 'flex-start', padding: '12px 20px', borderRadius: '20px', background: 'var(--brand-gradient)', color: '#fff', display: 'flex', gap: '8px', alignItems: 'center', opacity: 0.8 }}><Zap size={16} className="pulse" /> <span style={{ fontSize: '13px' }}>{t('processing')}</span></div>}
           </div>
         )}
-        <div ref={messagesEndRef} />
       </div>
 
-      {/* Bottom Input Area (Only visible when messages exist) */}
-      {messages.length > 0 && (
-        <div style={{
-          position: 'absolute', bottom: '80px', left: '20px', right: '20px', zIndex: 15
-        }}>
-          <div className="glass-card" style={{
-            display: 'flex', alignItems: 'center', padding: '8px 16px', gap: '12px',
-            borderRadius: '24px', backgroundColor: 'rgba(39, 42, 44, 0.8)', border: '1px solid rgba(255,255,255,0.05)'
-          }}>
-            <Paperclip size={20} color="var(--outline)" style={{ cursor: 'pointer' }} />
+      {/* Input Bar Section */}
+      <div style={{
+        position: 'absolute', bottom: '60px', left: 0, width: '100%',
+        padding: '20px 24px', backgroundColor: 'transparent', zIndex: 15
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ flex: 1, position: 'relative' }}>
+            <Paperclip size={20} color="var(--on-surface-variant)" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer' }} />
             <input
               type="text"
-              placeholder={t('askNexus')}
+              placeholder={t('askMaya')}
+              className="input-field"
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyPress={e => e.key === 'Enter' && handleSend()}
-              style={{
-                flex: 1, background: 'transparent', border: 'none', color: '#fff',
-                fontSize: '16px', outline: 'none', padding: '8px 0',
-                fontFamily: 'Inter'
-              }}
+              style={{ paddingLeft: '48px', paddingRight: '48px', height: '56px', borderRadius: '28px' }}
             />
-            <Mic size={20} color="var(--outline)" style={{ cursor: 'pointer' }} />
-            <button
-              onClick={handleSend}
-              style={{
-                background: 'linear-gradient(135deg, var(--electric-blue), var(--violet))',
-                border: 'none', borderRadius: '12px', width: '40px', height: '40px',
-                display: 'flex', justifyContent: 'center', alignItems: 'center',
-                cursor: 'pointer', marginLeft: '4px'
-              }}
-            >
-              <Send size={18} color="#fff" />
-            </button>
+            <Mic size={20} color="var(--on-surface-variant)" style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', cursor: 'pointer' }} />
           </div>
-        </div>
-      )}
-
-      {/* History Sidebar */}
-      <div 
-        ref={historyRef}
-        style={{
-          position: 'absolute', top: 0, left: 0, height: '100%',
-          width: '280px', backgroundColor: 'rgba(10, 12, 15, 0.95)',
-          backdropFilter: 'blur(20px)', zIndex: 100,
-          borderRight: '1px solid rgba(255,255,255,0.05)',
-          transform: showHistory ? 'translateX(0)' : 'translateX(-100%)',
-          transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          display: 'flex', flexDirection: 'column', padding: '24px'
-        }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-          <h3 style={{ color: '#fff', fontSize: '18px', fontWeight: 700, margin: 0 }}>Search History</h3>
-          <div onClick={() => setShowHistory(false)} style={{ cursor: 'pointer', color: 'rgba(255,255,255,0.4)' }}>
-            <Menu size={20} />
-          </div>
-        </div>
-
-        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          {messages.filter(m => m.sender === 'user').length === 0 ? (
-            <p style={{ color: 'rgba(255,255,255,0.3)', fontSize: '14px', textAlign: 'center', marginTop: '40px' }}>
-              No history yet
-            </p>
-          ) : (
-            [...new Set(messages.filter(m => m.sender === 'user').map(m => m.message))].reverse().map((msg, i) => (
-              <div 
-                key={i}
-                onClick={() => { setInput(msg); setShowHistory(false); }}
-                style={{
-                  padding: '12px 16px', borderRadius: '12px',
-                  backgroundColor: 'rgba(255,255,255,0.03)',
-                  color: 'rgba(255,255,255,0.7)', fontSize: '13px',
-                  cursor: 'pointer', whiteSpace: 'nowrap', overflow: 'hidden',
-                  textOverflow: 'ellipsis', border: '1px solid transparent',
-                  transition: 'all 0.2s'
-                }}
-                onMouseOver={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.08)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; }}
-                onMouseOut={(e) => { e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.03)'; e.currentTarget.style.borderColor = 'transparent'; }}
-              >
-                {msg}
-              </div>
-            ))
-          )}
-        </div>
-
-        <div style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-          <button 
-            onClick={clearChats}
-            style={{ 
-              width: '100%', padding: '12px', borderRadius: '12px',
-              backgroundColor: 'rgba(255,68,68,0.1)', color: '#ff4444',
-              border: '1px solid rgba(255,68,68,0.2)', cursor: 'pointer',
-              fontSize: '13px', fontWeight: 600
-            }}
-          >
-            Clear Current Chat
+          <button onClick={handleSend} className="btn-primary" style={{ width: '56px', height: '56px', borderRadius: '28px', padding: 0, minWidth: '56px' }}>
+            <Send size={22} />
           </button>
         </div>
       </div>
 
-      {/* Bottom Nav */}
-      <BottomNav />
+      {/* History Drawer */}
+      <div 
+        ref={historyRef}
+        style={{
+          position: 'absolute', top: 0, left: 0, height: '100%', width: '300px',
+          backgroundColor: 'var(--surface)', backdropFilter: 'blur(20px)', zIndex: 100,
+          borderRight: '1px solid var(--outline)', transform: showHistory ? 'translateX(0)' : 'translateX(-100%)',
+          transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)', display: 'flex', flexDirection: 'column', padding: '32px 24px'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+          <h3 className="headline-lg maya-text" style={{ margin: 0, fontSize: '20px', fontWeight: 800 }}>{t('history')}</h3>
+          <X size={24} color="var(--on-surface-variant)" onClick={() => setShowHistory(false)} style={{ cursor: 'pointer' }} />
+        </div>
+        <div style={{ flex: 1, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          {messages.length === 0 ? <p style={{ color: 'var(--on-surface-variant)', fontSize: '14px', textAlign: 'center', marginTop: '40px' }}>{t('noHistoryYet')}</p> : 
+            [...new Set(messages.filter(m => m.sender === 'user').map(m => m.message))].reverse().map((msg, i) => (
+              <div key={i} onClick={() => { setInput(msg); setShowHistory(false); }} className="btn-secondary" style={{ padding: '12px 16px', fontSize: '13px', borderRadius: '12px', textAlign: 'left', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', border: '1px solid var(--outline)' }}>{msg}</div>
+            ))
+          }
+        </div>
+        <button onClick={clearChats} className="btn-secondary" style={{ marginTop: '20px', color: 'var(--error)', borderColor: 'rgba(223, 21, 41, 0.2)' }}>{t('clearChat')}</button>
+        
+        <div style={{ textAlign: 'center', marginTop: '20px', opacity: 0.5 }}>
+          <p style={{ fontSize: '10px', color: 'var(--on-surface-variant)', fontWeight: 600 }}>© 2026 Maya Cognition Systems Inc.</p>
+        </div>
+      </div>
     </div>
   );
 };

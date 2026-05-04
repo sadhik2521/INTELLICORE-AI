@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
 import { GoogleSignUpButton } from '../components/RealOAuthButtons';
@@ -12,6 +12,7 @@ const Login = () => {
   const { t } = useLanguage();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [googleData, setGoogleData] = useState(null);
 
@@ -54,7 +55,7 @@ const Login = () => {
     }}>
 
       <div style={{ textAlign: 'center', marginTop: '16px', marginBottom: '24px' }}>
-        <h1 className="headline-xl" onClick={() => navigate('/')} style={{ color: 'var(--primary)', marginBottom: '8px', cursor: 'pointer' }}>INTELLICORE AI</h1>
+        <h1 className="headline-xl" onClick={() => navigate('/')} style={{ color: 'var(--primary)', marginBottom: '8px', cursor: 'pointer' }}>MAYA COGNITION</h1>
         <p className="body-md" style={{ color: 'var(--on-surface-variant)' }}>
           {t('welcomeBack')}
         </p>
@@ -95,24 +96,14 @@ const Login = () => {
           <label className="label-md" style={{ color: 'var(--on-surface-variant)', display: 'block', marginBottom: '8px' }}>
             {t('emailAddress')}
           </label>
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '4px',
-            padding: '12px',
-          }}>
-            <input 
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-              style={{
-                width: '100%', border: 'none', background: 'transparent', 
-                color: '#101415', fontSize: '16px', outline: 'none',
-                fontFamily: 'Inter'
-              }}
-              required
-            />
-          </div>
+          <input 
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            className="input-field"
+            required
+          />
         </div>
 
         <div>
@@ -120,23 +111,26 @@ const Login = () => {
             <label className="label-md" style={{ color: 'var(--on-surface-variant)' }}>{t('password')}</label>
             <span style={{ color: 'var(--primary)', fontSize: '12px', cursor: 'pointer' }}>{t('forgot')}</span>
           </div>
-          <div style={{
-            backgroundColor: '#ffffff',
-            borderRadius: '4px',
-            padding: '12px',
-          }}>
+          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
             <input 
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
-              style={{
-                width: '100%', border: 'none', background: 'transparent', 
-                color: '#101415', fontSize: '16px', outline: 'none',
-                fontFamily: 'Inter', letterSpacing: password ? '2px' : 'normal'
-              }}
+              className="input-field"
+              style={{ letterSpacing: !showPassword && password ? '2px' : 'normal', paddingRight: '48px' }}
               required
             />
+            <div 
+              onClick={() => setShowPassword(!showPassword)}
+              style={{ 
+                position: 'absolute', right: '16px', cursor: 'pointer', 
+                color: 'var(--on-surface-variant)', display: 'flex', alignItems: 'center',
+                zIndex: 5, padding: '4px'
+              }}
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </div>
           </div>
         </div>
 
@@ -185,9 +179,9 @@ const Login = () => {
         textAlign: 'center',
         fontSize: '10px',
         color: 'var(--outline)',
-        letterSpacing: '2px'
+        letterSpacing: '1px'
       }}>
-        INTELLICORE INTEGRATED SYSTEMS © 2024
+        © 2026 Maya Cognition Systems Inc.
       </div>
     </div>
   );

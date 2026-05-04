@@ -1,76 +1,51 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Open+Sans:wght@400;600&display=swap');
 
 :root {
-  /* Default Dark Theme */
-  --surface: #101415;
-  --surface-dim: #101415;
-  --surface-bright: #363a3b;
-  --surface-container-lowest: #0b0f10;
-  --surface-container-low: #191c1e;
-  --surface-container: #1d2022;
-  --surface-container-high: #272a2c;
-  --surface-container-highest: #323537;
-  --on-surface: #e0e3e5;
-  --on-surface-variant: #c4c5d9;
-  --inverse-surface: #e0e3e5;
-  --inverse-on-surface: #2d3133;
-  --outline: #8e90a2;
-  --outline-variant: #434656;
-  --surface-tint: #b8c3ff;
-  --primary: #b8c3ff;
-  --on-primary: #002388;
-  --primary-container: #2e5bff;
-  --on-primary-container: #efefff;
-  --inverse-primary: #124af0;
-  --secondary: #d0bcff;
-  --on-secondary: #3c0091;
-  --secondary-container: #571bc1;
-  --on-secondary-container: #c4abff;
-  --tertiary: #bec6e0;
-  --on-tertiary: #283044;
-  --tertiary-container: #656d84;
-  --on-tertiary-container: #eef0ff;
-  --error: #ffb4ab;
-  --on-error: #690005;
-  --error-container: #93000a;
-  --on-error-container: #ffdad6;
-  --background: #101415;
-  --on-background: #e0e3e5;
-  --surface-variant: #323537;
-  --electric-blue: #2e5bff;
-  --violet: #571bc1;
-  --primary-gradient: linear-gradient(135deg, var(--electric-blue), var(--violet));
+  /* Maya Cognition Brand Palette - Light Mode */
+  --primary: #4154f1;
+  --primary-dark: #3244e0;
+  --secondary: #012970;
+  --accent: #e7f1ff;
+  
+  --background: #ffffff;
+  --surface: #f6f9ff;
+  --surface-bright: #ffffff;
+  
+  --on-background: #444444;
+  --on-surface: #012970;
+  --on-surface-variant: #777777;
+  
+  --outline: #dbe7ff;
+  --outline-variant: #c3d6ff;
+  
+  --primary-gradient: linear-gradient(135deg, #4154f1 0%, #717ff5 100%);
+  --brand-gradient: linear-gradient(135deg, #012970 0%, #013289 100%);
+  
+  --error: #df1529;
+  --success: #2eca6a;
+
+  --spotlight-color: rgba(113, 127, 245, 0.15);
 }
 
-[data-theme='light'] {
-  --surface: #f8fafb;
-  --surface-dim: #d8dbdd;
-  --surface-bright: #f8fafb;
-  --surface-container-lowest: #ffffff;
-  --surface-container-low: #f1f4f5;
-  --surface-container: #ebedf0;
-  --surface-container-high: #e5e8eb;
-  --surface-container-highest: #dfe2e5;
-  --on-surface: #191c1e;
-  --on-surface-variant: #43474e;
-  --inverse-surface: #2e3133;
-  --inverse-on-surface: #f0f1f3;
-  --outline: #73777f;
-  --outline-variant: #c3c7cf;
-  --primary: #005bc1;
-  --on-primary: #ffffff;
-  --primary-container: #d8e2ff;
-  --on-primary-container: #001a41;
-  --secondary: #605d62;
-  --on-secondary: #ffffff;
-  --secondary-container: #e6e1e9;
-  --on-secondary-container: #1d1a22;
-  --background: #f8fafb;
-  --on-background: #191c1e;
-  --surface-variant: #e0e2ec;
-  --electric-blue: #005bc1;
-  --violet: #6750a4;
-  --primary-gradient: linear-gradient(135deg, #005bc1, #6750a4);
+[data-theme='dark'] {
+  /* Maya Cognition Brand Palette - Cinematic Dark Mode */
+  --background: #040813;
+  --surface: #0a1024;
+  --surface-bright: #101935;
+  
+  --on-background: #e2e8f0;
+  --on-surface: #ffffff;
+  --on-surface-variant: #889ac1;
+  
+  --outline: #1e2b4d;
+  --outline-variant: #2d3f75;
+  
+  --accent: rgba(65, 84, 241, 0.15);
+  
+  --primary-gradient: linear-gradient(135deg, #5b6cf5 0%, #8c97f8 100%);
+  --brand-gradient: linear-gradient(135deg, #101935 0%, #1e2b4d 100%);
+
+  --spotlight-color: rgba(140, 151, 248, 0.1);
 }
 
 * {
@@ -79,138 +54,221 @@
   padding: 0;
 }
 
-html {
-  overflow-x: hidden;
-}
-
 body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Open Sans', sans-serif;
   background-color: var(--background);
   color: var(--on-background);
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
+  transition: background-color 0.4s ease, color 0.4s ease;
   overflow-x: hidden;
-  position: relative;
-  transition: background-color 0.4s ease;
-  
-  /* Crystal Clear Background */
-  background: linear-gradient(180deg, var(--background) 0%, var(--surface-dim) 100%);
 }
 
-/* Removed noise texture overlay */
-body::before {
-  display: none;
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Nunito', sans-serif;
+  color: var(--on-surface);
+  font-weight: 700;
 }
-
 
 #root {
   width: 100%;
-  max-width: 390px;
-  min-height: 100vh;
+  max-width: 450px;
+  margin: 0 auto;
+  height: 100vh;
+  overflow: hidden;
   background-color: var(--background);
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow-x: hidden;
-  overflow-y: hidden;
-  box-shadow: 0 0 60px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255,255,255,0.08);
-  transition: background-color 0.3s ease;
+  box-shadow: 0 0 50px rgba(0, 0, 0, 0.1);
 }
 
-/* Typography */
-.headline-xl { font-size: 32px; font-weight: 700; line-height: 40px; letter-spacing: -0.02em; }
-.headline-lg { font-size: 24px; font-weight: 600; line-height: 32px; letter-spacing: -0.01em; }
-.body-md { font-size: 16px; font-weight: 400; line-height: 24px; letter-spacing: 0em; }
-.body-sm { font-size: 14px; font-weight: 400; line-height: 20px; letter-spacing: 0em; }
-.label-md { font-size: 12px; font-weight: 600; line-height: 16px; letter-spacing: 0.05em; text-transform: uppercase; }
-
-/* Components */
-.glass-card {
-  background: var(--surface-container-high);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--outline-variant);
-  border-radius: 1.5rem; /* xl */
-  padding: 16px;
-  transition: all 0.3s ease;
+/* Global Cursor Spotlight */
+.cursor-spotlight {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 600px;
+  height: 600px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--spotlight-color) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 9999;
+  transition: opacity 0.3s ease;
+  will-change: transform;
 }
 
+/* Maya Liquid Glass Buttons */
 .btn-primary {
+  position: relative;
   background: var(--primary-gradient);
-  color: var(--on-primary);
-  border: none;
-  border-radius: 0.75rem; /* md */
-  padding: 12px 24px;
-  font-family: 'Inter', sans-serif;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50px;
+  padding: 12px 32px;
   font-weight: 600;
-  font-size: 16px;
+  font-family: 'Nunito', sans-serif;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: all 0.3s ease-out;
+  gap: 10px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 4px 15px rgba(65, 84, 241, 0.4),
+    inset 0 0 10px rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(8px);
 }
 
-.btn-primary:active {
-  transform: scale(0.98);
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: 0.6s;
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 
+    0 8px 25px rgba(65, 84, 241, 0.5),
+    inset 0 0 15px rgba(255, 255, 255, 0.3);
 }
 
 .btn-secondary {
-  background: var(--surface-container-high);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--outline-variant);
-  color: var(--on-surface);
-  border-radius: 0.75rem; /* md */
-  padding: 12px 24px;
-  font-family: 'Inter', sans-serif;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--primary);
+  border: 1px solid var(--outline);
+  border-radius: 50px;
+  padding: 12px 32px;
   font-weight: 600;
-  font-size: 16px;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  transition: all 0.3s ease-out;
+  backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
+[data-theme='dark'] .btn-secondary {
+  background: rgba(16, 25, 53, 0.4);
+  color: #8c97f8;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.btn-secondary:hover {
+  background: var(--accent);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Maya Glass Card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 1.5rem;
+  padding: 24px;
+  box-shadow: 0 15px 35px rgba(1, 41, 112, 0.08);
+  transition: all 0.3s ease;
+}
+
+[data-theme='dark'] .glass-card {
+  background: rgba(16, 25, 53, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Brand Gradient Text */
+.maya-text {
+  background: linear-gradient(135deg, var(--primary) 0%, #717ff5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-theme='dark'] .maya-text {
+  background: linear-gradient(135deg, #ffffff 0%, #aab4ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Animations */
+@keyframes float {
+  0% { transform: translateY(0px) rotate(-5deg); }
+  50% { transform: translateY(-15px) rotate(-3deg); }
+  100% { transform: translateY(0px) rotate(-5deg); }
+}
+
+.floating {
+  animation: float 5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.1); }
+  100% { opacity: 0.3; transform: scale(1); }
+}
+
+.pulse {
+  animation: pulse 4s ease-in-out infinite;
+}
+
+/* Maya Liquid Glass Inputs */
 .input-field {
   width: 100%;
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid var(--outline-variant);
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  padding: 14px 18px;
   color: var(--on-surface);
   font-size: 16px;
-  padding: 8px 0;
-  font-family: 'Inter', sans-serif;
-  transition: border-color 0.3s ease-out;
+  font-family: 'Open Sans', sans-serif;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    inset 0 1px 3px rgba(0, 0, 0, 0.05),
+    0 4px 10px rgba(0, 0, 0, 0.02);
+}
+
+[data-theme='dark'] .input-field {
+  background: rgba(16, 25, 53, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  box-shadow: 
+    inset 0 1px 3px rgba(0, 0, 0, 0.2),
+    0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .input-field:focus {
   outline: none;
-  border-bottom-color: var(--electric-blue);
-  box-shadow: 0 1px 0 var(--electric-blue);
+  background: rgba(255, 255, 255, 0.8);
+  border-color: var(--primary);
+  box-shadow: 
+    0 0 0 4px rgba(65, 84, 241, 0.15),
+    0 8px 20px rgba(65, 84, 241, 0.1);
+  transform: translateY(-1px);
+}
+
+[data-theme='dark'] .input-field:focus {
+  background: rgba(16, 25, 53, 0.7);
+  border-color: #8c97f8;
+  box-shadow: 
+    0 0 0 4px rgba(140, 151, 248, 0.15),
+    0 8px 25px rgba(0, 0, 0, 0.4);
 }
 
 .input-field::placeholder {
   color: var(--on-surface-variant);
-}
-
-.ai-aura {
-  box-shadow: 0 0 32px rgba(46, 91, 255, 0.3);
-}
-
-/* Animations */
-@keyframes pulseGlow {
-  0% { box-shadow: 0 0 10px rgba(46, 91, 255, 0.2); }
-  50% { box-shadow: 0 0 30px rgba(46, 91, 255, 0.6); }
-  100% { box-shadow: 0 0 10px rgba(46, 91, 255, 0.2); }
-}
-
-.pulsing-aura {
-  animation: pulseGlow 2s infinite ease-in-out;
+  opacity: 0.6;
 }
