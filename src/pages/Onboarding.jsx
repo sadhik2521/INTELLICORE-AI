@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Sparkles, Globe, LogIn, Compass, ArrowRight, 
-  Sun, Moon, ShieldCheck, Zap, Cpu, Activity 
+import {
+  Sparkles, Globe, LogIn, Compass, ArrowRight,
+  Sun, Moon, ShieldCheck, Zap, Cpu, Activity
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useTheme } from '../context/ThemeContext';
@@ -32,29 +32,29 @@ const Onboarding = () => {
     }}>
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10, position: 'relative', marginBottom: '10px' }}>
-        <h1 className="headline-lg maya-text" onClick={() => navigate('/')} style={{ 
+        <h1 className="headline-lg maya-text" onClick={() => navigate('/')} style={{
           margin: 0, fontSize: '20px', cursor: 'pointer', fontWeight: 800, letterSpacing: '-0.5px'
         }}>MAYA COGNITION</h1>
-        
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {/* Theme Selector */}
-          <div 
+          <div
             onClick={() => toggleTheme(theme === 'dark' ? 'light' : 'dark')}
-            style={{ 
-              display: 'flex', alignItems: 'center', justifyContent: 'center', 
-              color: 'var(--on-surface-variant)', cursor: 'pointer', padding: '8px', 
+            style={{
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              color: 'var(--on-surface-variant)', cursor: 'pointer', padding: '8px',
               borderRadius: '8px', backgroundColor: 'var(--surface)'
             }}
           >
             {theme === 'dark' ? <Moon size={20} /> : <Sun size={20} />}
           </div>
-          
+
           {/* Language Selector */}
           <div style={{ position: 'relative' }}>
-            <div 
+            <div
               onClick={toggleLangMenu}
-              style={{ 
-                display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--on-surface-variant)', 
+              style={{
+                display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--on-surface-variant)',
                 fontSize: '14px', cursor: 'pointer', padding: '8px', borderRadius: '8px',
                 backgroundColor: showLangMenu ? 'var(--accent)' : 'transparent'
               }}
@@ -65,16 +65,16 @@ const Onboarding = () => {
 
             {showLangMenu && (
               <div className="glass-card" style={{
-                position: 'absolute', top: '45px', right: '0', 
+                position: 'absolute', top: '45px', right: '0',
                 display: 'flex', flexDirection: 'column', gap: '4px',
                 padding: '8px', zIndex: 20, minWidth: '120px'
               }}>
                 {['en', 'hi', 'te'].map((lang) => (
-                  <div 
+                  <div
                     key={lang}
-                    onClick={() => selectLanguage(lang)} 
-                    style={{ 
-                      padding: '10px 12px', cursor: 'pointer', borderRadius: '8px', 
+                    onClick={() => selectLanguage(lang)}
+                    style={{
+                      padding: '10px 12px', cursor: 'pointer', borderRadius: '8px',
                       backgroundColor: language === lang ? 'var(--accent)' : 'transparent',
                       color: language === lang ? 'var(--primary)' : 'var(--on-background)',
                       fontWeight: language === lang ? 600 : 400
@@ -101,7 +101,7 @@ const Onboarding = () => {
             position: 'absolute', width: '180px', height: '180px', borderRadius: '50%',
             backgroundColor: 'rgba(65, 84, 241, 0.1)', filter: 'blur(30px)', animationDelay: '1s', zIndex: -1
           }} />
-          
+
           <div style={{
             width: '180px', height: '180px', borderRadius: '48px',
             background: 'linear-gradient(135deg, #012970 0%, #013289 100%)',
@@ -113,7 +113,7 @@ const Onboarding = () => {
           }}>
             <Cpu size={90} color="#ffffff" />
           </div>
-          
+
           {/* Floating badges around the main icon */}
           <div className="floating" style={{ position: 'absolute', top: '-25px', right: '-40px', animationDelay: '0.5s' }}>
             <div style={{ padding: '12px', borderRadius: '16px', backgroundColor: 'var(--surface-bright)', border: '1px solid var(--outline)', boxShadow: '0 8px 24px rgba(0,0,0,0.08)' }}>
@@ -129,12 +129,12 @@ const Onboarding = () => {
       </div>
 
       {/* Typography & Actions */}
-      <div style={{ 
-        textAlign: 'center', 
-        zIndex: 1, 
-        display: 'flex', 
-        flexDirection: 'column', 
-        gap: '20px', 
+      <div style={{
+        textAlign: 'center',
+        zIndex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '20px',
         paddingBottom: '20px',
         marginTop: '0px' /* Centered normally */
       }}>
@@ -145,8 +145,8 @@ const Onboarding = () => {
           </p>
         </div>
 
-        <button 
-          className="btn-primary" 
+        <button
+          className="btn-primary"
           style={{ width: '100%', height: '64px', fontSize: '20px' }}
           onClick={() => navigate('/signup')}
         >
@@ -154,15 +154,15 @@ const Onboarding = () => {
         </button>
 
         <div style={{ display: 'flex', gap: '16px' }}>
-          <button 
-            className="btn-secondary" 
+          <button
+            className="btn-secondary"
             style={{ flex: 1, height: '56px', fontSize: '16px' }}
             onClick={() => navigate('/login')}
           >
             <LogIn size={20} /> {t('signIn')}
           </button>
-          <button 
-            className="btn-secondary" 
+          <button
+            className="btn-secondary"
             style={{ flex: 1, height: '56px', fontSize: '16px' }}
             onClick={() => navigate('/explore')}
           >
@@ -191,7 +191,7 @@ const Onboarding = () => {
         </div>
 
         {/* Copyright */}
-        <div style={{ textAlign: 'center', marginTop: '20px', paddingBottom: '20px', opacity: 0.5 }}>
+        <div style={{ textAlign: 'center', marginTop: '0px', paddingBottom: '0px', opacity: 0.5 }}>
           <p style={{ fontSize: '10px', color: 'var(--on-surface-variant)', fontWeight: 600 }}>© 2026 Maya Cognition Systems Inc.</p>
         </div>
       </div>

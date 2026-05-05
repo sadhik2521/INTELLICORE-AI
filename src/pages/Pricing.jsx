@@ -61,9 +61,18 @@ const Pricing = () => {
       </div>
 
       {/* Scrollable Content */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '24px', paddingBottom: '120px', display: 'flex', flexDirection: 'column', gap: '28px' }}>
+      <div style={{ 
+        flex: 1, 
+        overflowY: 'auto', 
+        padding: '20px 16px', 
+        paddingBottom: '140px', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        gap: '24px',
+        WebkitOverflowScrolling: 'touch' /* Smooth scrolling for iOS */
+      }}>
         
-        <div style={{ textAlign: 'center', marginTop: '10px' }}>
+        <div style={{ textAlign: 'center', marginTop: '10px', marginBottom: '10px' }}>
           <div style={{ position: 'relative', display: 'inline-block', marginBottom: '16px' }}>
             <div className="pulse" style={{ position: 'absolute', inset: -15, background: 'var(--accent)', filter: 'blur(20px)', borderRadius: '50%', zIndex: -1 }} />
             <Zap size={40} color="var(--primary)" />
@@ -74,46 +83,65 @@ const Pricing = () => {
 
         {plans.map((plan, idx) => (
           <div key={idx} className="glass-card" style={{ 
-            padding: '28px', borderRadius: '32px', position: 'relative',
+            padding: '24px', 
+            borderRadius: '28px', 
+            position: 'relative',
             border: plan.isPopular ? `2px solid var(--primary)` : '1px solid var(--outline)',
-            backgroundColor: plan.isPopular ? 'var(--surface-bright)' : 'var(--surface-bright)',
-            boxShadow: plan.isPopular ? '0 20px 40px rgba(1, 41, 112, 0.1)' : 'none',
-            overflow: 'hidden', transition: 'transform 0.3s ease'
+            backgroundColor: 'var(--surface-bright)',
+            boxShadow: plan.isPopular ? '0 20px 40px rgba(1, 41, 112, 0.15)' : '0 10px 30px rgba(0,0,0,0.05)',
+            display: 'flex',
+            flexDirection: 'column',
+            flexShrink: 0, /* Prevent squashing on small screens */
+            transition: 'transform 0.3s ease'
           }}>
             {plan.isPopular && (
               <div style={{ 
-                position: 'absolute', top: '16px', right: '-35px', 
-                backgroundColor: 'var(--primary)', color: '#fff',
-                fontSize: '10px', fontWeight: 800, padding: '4px 35px',
-                transform: 'rotate(45deg)', letterSpacing: '1px'
-              }}>POPULAR</div>
+                position: 'absolute', 
+                top: '0', 
+                right: '0',
+                overflow: 'hidden',
+                width: '100px',
+                height: '100px',
+                borderRadius: '0 28px 0 0'
+              }}>
+                <div style={{ 
+                  position: 'absolute', top: '16px', right: '-35px', 
+                  backgroundColor: 'var(--primary)', color: '#fff',
+                  fontSize: '10px', fontWeight: 800, padding: '4px 35px',
+                  transform: 'rotate(45deg)', letterSpacing: '1px'
+                }}>POPULAR</div>
+              </div>
             )}
             
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
-              <div>
-                <h3 style={{ fontSize: '22px', fontWeight: 800, color: 'var(--on-surface)', margin: 0 }}>{plan.name}</h3>
-                <p style={{ fontSize: '13px', color: 'var(--on-surface-variant)', marginTop: '6px', fontWeight: 500 }}>{plan.description}</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+              <div style={{ flex: 1 }}>
+                <h3 style={{ fontSize: '20px', fontWeight: 800, color: 'var(--on-surface)', margin: 0 }}>{plan.name}</h3>
+                <p style={{ fontSize: '12px', color: 'var(--on-surface-variant)', marginTop: '4px', fontWeight: 500, lineHeight: '1.4', paddingRight: '10px' }}>{plan.description}</p>
               </div>
-              <div style={{ textAlign: 'right' }}>
-                <span style={{ fontSize: '32px', fontWeight: 900, color: 'var(--on-surface)', letterSpacing: '-1px' }}>{plan.price}</span>
-                {plan.price !== 'Free' && <span style={{ fontSize: '14px', color: 'var(--on-surface-variant)', fontWeight: 600 }}>/mo</span>}
+              <div style={{ textAlign: 'right', minWidth: '100px' }}>
+                <span style={{ fontSize: '28px', fontWeight: 900, color: 'var(--on-surface)', letterSpacing: '-1px' }}>{plan.price}</span>
+                {plan.price !== 'Free' && <span style={{ fontSize: '13px', color: 'var(--on-surface-variant)', fontWeight: 600 }}>/mo</span>}
               </div>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', marginBottom: '32px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
               {plan.features.map((feature, fIdx) => (
-                <div key={fIdx} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ width: '20px', height: '20px', borderRadius: '50%', backgroundColor: plan.isCurrent ? 'var(--outline)' : 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <Check size={12} color={plan.isCurrent ? 'var(--on-surface-variant)' : 'var(--primary)'} strokeWidth={3} />
+                <div key={fIdx} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{ 
+                    width: '18px', height: '18px', minWidth: '18px', borderRadius: '50%', 
+                    backgroundColor: plan.isCurrent ? 'var(--outline)' : 'var(--accent)', 
+                    display: 'flex', alignItems: 'center', justifyContent: 'center' 
+                  }}>
+                    <Check size={10} color={plan.isCurrent ? 'var(--on-surface-variant)' : 'var(--primary)'} strokeWidth={4} />
                   </div>
-                  <span style={{ fontSize: '14px', color: 'var(--on-surface)', fontWeight: 500 }}>{feature}</span>
+                  <span style={{ fontSize: '13px', color: 'var(--on-surface)', fontWeight: 500 }}>{feature}</span>
                 </div>
               ))}
             </div>
 
             <button 
               className={plan.isPopular ? 'btn-primary' : 'btn-secondary'} 
-              style={{ width: '100%', height: '56px', borderRadius: '20px', fontSize: '16px', fontWeight: 700, opacity: plan.isCurrent ? 0.7 : 1 }}
+              style={{ width: '100%', height: '52px', borderRadius: '16px', fontSize: '15px', fontWeight: 700, opacity: plan.isCurrent ? 0.7 : 1 }}
               disabled={plan.isCurrent}
             >
               {plan.buttonText}
@@ -121,19 +149,20 @@ const Pricing = () => {
           </div>
         ))}
 
-        <div className="glass-card" style={{ padding: '24px', textAlign: 'center', backgroundColor: 'transparent', border: '1px dashed var(--outline)', borderRadius: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginBottom: '12px', alignItems: 'center' }}>
-            <Shield size={20} color="var(--primary)" />
-            <span style={{ fontSize: '14px', color: 'var(--on-surface)', fontWeight: 600 }}>Secure payments via Razorpay</span>
+        <div className="glass-card" style={{ padding: '20px', textAlign: 'center', backgroundColor: 'transparent', border: '1px dashed var(--outline)', borderRadius: '24px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '10px', marginBottom: '8px', alignItems: 'center' }}>
+            <Shield size={18} color="var(--primary)" />
+            <span style={{ fontSize: '13px', color: 'var(--on-surface)', fontWeight: 600 }}>Secure payments via Razorpay</span>
           </div>
-          <p style={{ fontSize: '12px', color: 'var(--on-surface-variant)', margin: 0 }}>Prices are in INR. GST included where applicable.</p>
+          <p style={{ fontSize: '11px', color: 'var(--on-surface-variant)', margin: 0 }}>Prices are in INR. GST included where applicable.</p>
         </div>
 
         {/* Copyright */}
-        <div style={{ textAlign: 'center', marginTop: '12px', opacity: 0.6 }}>
-          <p style={{ fontSize: '11px', color: 'var(--on-surface-variant)', fontWeight: 600 }}>© 2026 Maya Cognition Systems Inc.</p>
+        <div style={{ textAlign: 'center', marginTop: '0px', paddingBottom: '20px', opacity: 0.6, flexShrink: 0 }}>
+          <p style={{ fontSize: '10px', color: 'var(--on-surface-variant)', fontWeight: 600 }}>© 2026 Maya Cognition Systems Inc.</p>
         </div>
       </div>
+
     </div>
   );
 };
